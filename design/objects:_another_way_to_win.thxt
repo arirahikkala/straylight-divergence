@@ -1,0 +1,15 @@
+lol thxt
+
+Anyways! Instead of spending forever agonising over the Object interface... how about just taking the code as it is and adding one *interaction* at a time? That way I should be able to avoid stupid shit like ItemCategory and whatever other incredibly crappy ideas I apparently had the last time I was working on this.
+
+So, today's interactions are: Being placed on the map by the map generator, and being rendered on the map.
+
+Being placed on the map is a reasonably simple affair. Well, so far as that the only item I'm going to handle it for for now is furniture, and for furniture, the vast majority of complexity is in the map generator, and we're not counting that since I can't remember what's still left to be done.
+
+Well, the map generator is done-er than I thought! So I guess I actually have to face this problem now. How do I construct those nice furniture objects that the map generator would so like to throw at me? 
+... oh for fucksakes, I'll just use debugChars for now, I'm more interested in the structure of Furniture.hs than Object.hs.
+
+Being rendered on the map is not quite as simple. Subproblems:
+
+- Rendering order (not necessarily a simple matter, especially because it needs to agree with the bump command, and of course, because in the general case it's not at all obvious what should be rendered on top; and I'm not currently planning on a DFish solution either). I'm not planning to implement a monadic sort, so maybe something like renderPriority :: SpecificObject -> GameT m Int, and sort by that?
+- Make sure both the rendering colour and character can be controlled properly.

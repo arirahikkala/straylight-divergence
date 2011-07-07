@@ -1,0 +1,9 @@
+Combat will take a lot of ideas from DoomRL and PrincessRL, and add a few of my own into the mix too.
+
+Both ranged and melee combat will be useful options. However, there won't be a way to really ensure you won't ever take damage if you try to charge a distant enemy for melee (but neither will there be a way to ensure not taking damage in ranged combat, at least if you still also want to cause damage yourself).
+
+Weapons will tend toward the small and sneaky. Shotguns and assault rifles might be available as choices, but it will proly not be a good idea to bring them along. Instead, there will be suppressed guns with subsonic cartridges. Later on fun scifi guns would be added: Railguns, coilguns, gyrojets, smart gyrojets. Close combat is simpler: Knives, lots of knives. Uh, maybe also just a tiny little Babylon 5 reference in the form of the retractable pike. But, mostly, the equipment is not the point (hell, all DoomRL has for melee is your fists, the knife, the chainsaw, and a couple of uniques). 
+
+So, uh, to be honest, it seems really pretty obvious where to go wrt. implementing combat. You know, start with wielding weapons, handle ammo when it comes to shooting etc. and take the ammo and weapon type into account when calculating damage. Add a good shooting interface. So and and so forth, nothing overly complicated. 
+
+But how about enemy AI? Well, firstly, every individual enemy should have some level of knowledge of where you are (theyr actions should depend on how certain that knowledge is, among other things). 

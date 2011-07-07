@@ -1,0 +1,46 @@
+OK, fffffuck. I need some kind of an idea for what kind of items there will be in the game, and how item balance will work.
+
+Things I know:
+
+- there *will* be an alphabet-based inventory size limit for both equipped and carried items; no ADOM-style hauling pages and pages of stuff around here. 
+
+Actually, yeah. Crawl inventory through and through. It just makes sense, and hey, Crawl's pretty much the Big Guy in roguelikedom these days, so it should be OK to steal from it.
+
+Ergo: Crawl-ish interface screen. But the basic questions remain...
+
+- what item categories to have?
+- what active slots will the inventory have?
+- precisely what items will you be able to reasonably expect to find laying around anyway?
+
+
+Well, the multitasking mechanic mostly solves issue #2: Most tools (i.e. jewelry-equivalents) will simply be either active or not. Thing is, weapons and armor aren't active tools... hm...
+
+OK, I'll have a "wielded" weapon (which is actually taken out and concealed at the appropriate times by the character). Plus switching between slots a and b with ', ala crawl. Body armor too, aaaat some point. It's not important. But tools *are* important. And I don't just want a big flat list of tools. So how do I categorise the player's toys?
+
+Oh, ffs, it's not important. I'll just come up with *some* categories of some sort now and then maybe re-work them out later once I have some actual items going. Though, that does sort of mean that I'll probably want to make Tool an Object constructor and put all the tool categories under the same constructor - that way I won't have to rework a lot of code to accommodate for any category changes.
+
+
+
+By the way, speaking of taking stuff from Crawl...
+
+CONSUMABLES!
+
+Crawl has *awesome* consumables. Players will have to really think about when to use that scroll of blink or of teleportation, or whether now is the right time to down a healing or heal wounds potion, or whether they could get away with zapping themselves with that wand of invisibility now or not, etc.. The wonderful thing is, you'll usually have *some* way to escape a sticky situation, but it's often not going to be the optimal way, and once you've used it it's going to be a matter of luck before you get a restock of that consumable.
+
+What kind of techy consumables could I have in this game that would be in keeping with the general level of advancement?
+
+- various levels of ability to get a healing surge, obviously (from wound glue to nanoregeneration)
+- the charge meter itself should make a decent replacement for many "item" consumables, for instance by allowing you to "cast haste" to get out of there
+- grenades and mines of various sorts: Prox mines, smoke grenades, flashbangs, just the usual frag grenades, concussion grenades (more lethal than frag grenades but effectiveness drops off more quickly, except if used in an inside room, applies damage to every tile in that room (smaller room = more damage)... 
+ - smoke fields will have to have three different effects to really be modelled properly within the game: Damage that drops off very quickly with time (1-10 turns), visibility blocking that drops off somewhat more slowly (5-20 turns), and +cover that drops off far more slowly and gradually from right at the start to maybe like 50 turns?
+
+
+
+With smoke grenades, comes the obvious respirator item. I'll have it use a multitasking slot, even (you'll know why if you've ever actually used one). We'll assume the PC is wearing proper eye protection for the grenades that he uses.
+
+
+Grenade ideas:
+
+Frag grenade: 10 damage to each tile in a 2-tile radius (21 tiles)
+Concussion grenade: 15 damage to each tile in a 1-tile radius (9 tiles) + 200 damage evenly distributed across every tile in the room if indoors (+ deafness effect, stun effect?)
+Smoke grenade: Complicated. ):

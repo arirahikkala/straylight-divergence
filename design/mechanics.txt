@@ -1,0 +1,170 @@
+OK. Decision time. Furniture, if it does go in for the first release, will be way simplified and random (maybe just something like tossing decorations along the edge of inner rectangles on paths, some randomly placed tables and chairs in random rooms outside). That means that I actually have to figure out how gameplay will work; and in a roguelike, that means deciding what resources the player will usually be managing and how.
+
+For inspiration and reference, some fungible or consumable resources in roguelikes include:
+
+- satiation: The classic. Goes down with time, up with eating. Using artifacts, i.e. certain powerful items, tends to make this go down faster. Food balance might be tuned to be very tight so that you basically have to run down the stairs all the time. In more modern roguelikes there tend to be easy ways to find large amounts of food, such as the Hive in Crawl and stomafillias and the ratling traders in ADOM. Being very low or very high on satiation tends to have negative effects, and being somewhere near the middle is preferred.
+- hitpoints: The even more classic. Usually regenerates slowly with time, can be regenerated more quickly with spells or consumables, goes down with (and indeed directly represents) taking damage. Generally a lot of tools to give yourself more HP and reduce enemies' HP, but never enough to just keep healing yourself arbitrarily or to immediately kill strong monsters.
+- magic points: Also classic. Almost always regenerate with time, used to cast spells, and far more rarely easily replenishable with anything but time.
+- scrolls and potions: Single-use effect, usually on yourself if from a potion, on anything else if from a scroll.
+- wands: n-use effects
+- jewelry: magical effects, often stat boosts, regeneration (of HP, but almost never MP)
+
+And some less universal ones:
+
+- corruption (or purity): Fairly similar in ADOM and Crawl, at least. Certain situations (in ADOM usually just tarrying around in the depths for too long and being hit by specific monsters; in Crawl casting spells too much, and also getting hit by specific monsters(' gaze attacks). Numeric counter that goes up, the higher the more corruption effects you get (well, difference: in ADOM  the effects are random and your number of corruptions is always (corruption points added - corruption points removed) `div` corruption effect cost, whereas in Crawl it's more complicated and less universal). Removing corruption is often difficult. Mutations might be permanent or removed with removed corruption. It's very rare that all mutations in the game (and all of the ones that your character gets, once there are more than a couple of them) are strictly bad or strictly good.
+- sanity: Used in Featurecreeper. Similar to ADOM-style corruption, except goes down much faster, being in darkness makes it go down faster still, and has a very different set of effects (all of them almost certainly bad, at least so far)
+- light: Used in Featurecreeper. Depends on consumable light items, which tend to be spent quickly. (ADOM also has light but with far less relative significance - the most important tactical uses probably are the use of light in the gremlin cave, and darkness spells to generally get out of trouble)
+- experience: Used in Crawl. Gained from killing monsters, spent to raise skills by using skills.
+
+
+Effectively, then, manageable resources in roguelike games can be described by seeing whether they are...
+
+- spent with time (effect: Must play faster, more aggressive to conserve this resource)
+- spent with attacks (effect: Must play conservatively)
+- spent with taking certain actions (effect: Must limit taking these actions)
+- gained with time (effect: Need to find shelter to regain)
+- gained with exploration (rare) (effect: Must explore)
+- gained with consumables (effect: Must explore)
+- gained with killing (rare by itself) (effect: Must.. kill... must... kill)
+
+Well, that sure was a piece of analysis! I'm not sure it was useful at all though. Here's what sorts of resources I've been thinking of having:
+
+- Hitpoints. As usual. Should be a higher number than you'd have in Shadowrun (which is 6-12ish), but not too high - preferably should never go above 100.
+- Healing items, need "shelter" (well, a moment of calm anyway) to be used?
+
+So far so good. But a problem appears: This is a really boring set of resources! 
+
+The basic conflict here is: I want a lot of cool acrobatic special abilities (even if I haven't yet quite decided *what* those abilities will be!). But I also want a simple control scheme. This essentially means that those cool acrobatic special abilities will have to essentially never have a downside - otherwise you'll have to have the player input extra commands to specify if they are actually using an ability. And it's all going to be so very inconsistent then. For instance, taking inspiration from PrincessRL, most abilities such as charge, close combat, wall vault and backstab must be either free or controllable. On the other hand, wall leap does not need to be specially controlled because the player can just not run at walls in order to not use it.
+
+Worse, it's a precarious matter intruding into normal controls anyway. For instance, wall leap conflicts with the wall-sliding control scheme that players of other roguelikes might well be familiar with. Even in PrincessRL you tend to get weird messagespam for running into walls because of the wall leap ability.
+
+One plan: Have stamina, and just have some specific, interesting ways to spend it:
+
+- 'c' means "(c)harge *or jump*". Charging requires stamina points depending on distance, but has the benefit of only taking one turn to run over several tiles (should start out as a very small number - I'm thinking three would be a good number, +2 for catlike assassins, -2 for hulking brutes. (what this would mean is that catlike assassins essentially get to charge over two tiles' distance for free - meaning that merely charging over two tiles is always free for them, and charging over five tiles at the start costs them the same as charging over three tiles costs others)
+- wallruns: Same rules as charging (down to taking only a turn per wallrun, despite the multiple-turn-ish interface), automatically leaps over enemies (will refuse to move if there too many to drop into an unoccupied tile). More expensive staminawise than charging, and the starting wallrunnable distance is 1 tile (i.e. no wallruns possible), but the distance modifiers are the same (so catlike assassins get to wallrun over two enemies for free right from the start)
+- charging or wallrunning over larger obstacles is more expensive on stamina
+- melee combat is a light drain on stamina
+- moving heavy objects drains stamina
+
+Stamina has a cap, which is max (10, current hp - number of times recharge has been used). 
+
+The question arises: What to do about dancing? Well, let's see what PrincessRL has...
+
+- charge: Thematically inappropriate, you're not a goddamn lancer
+- wall leap: Physically inappropriate
+- wall vault: Sort of interesting actually. The problem is, without vall leap, this might become spammable, which would be a pretty terrible thing because the obvious way to spam it would be horribly fiddly and annoying. Still, it could add dynamism to fights. Make it so that enemies will generally see if you used this and try to take shots at you while you are vaulting over them... but against anyone who hasn't seen it, it always works once. Should probably be a perk, somehow. (proly something to increase "jump height" allowing you to jump over people in the first place, and maybe another perk to allow you to hit them while jumping over)
+- open ground attack: Very good. This one should definitely be a perk.
+- evasion: What does this do again? ):
+- multiple attack: Perk.
+- burst of speed: Kinda weak to be a perk... so I guess it could be a cheap perk :p.
+- close quarters: Perk.
+
+Jump/charge and wallrun distance increases should be perks too. 
+
+More possible perks:
+
+- stable aim: Shooting after moving or standing still is a free action; however, if you did move, cover penalties are fully counted for the whole distance the shot travels (this is to discourage constantly hopping in and out of cover using stable aim). If you moved into cover, you can avoid shooting at said cover by waiting a turn.
+- dualwielding: (in a later version)
+- cartwheel grab: Picking a single object off the ground after moving or standing still is a free action.
+- jumping 
+
+
+
+
+So, to get back to the original subject, we have the following fungible resources:
+
+- hitpoints
+- stamina
+- mental stability
+
+That's not too bad, actually. Three is a pretty damn good number of fungible resources to have. But I think it might make sense to not have mental stability as an "important" stat and instead display it somewhere... uh... somewhere! Next to the bullet count or something. Instead, how about one more resource:
+
+Charge!
+
+(btw: hitpoints = red, stamina = green, charge = blue)
+
+Charge starts out as invisible and comes into play the first time you install a "powerful" electrically operated implant. Charge basically allows for a whole range of extra fun perks, such as ridiculously long jumps and almost as ridiculously long wallruns, powerful melee attacks, stuns at a distance, etc.. Charge can be... recharged, at the cost of decreasing stamina (a lot) and the current mission's stamina cap (somewhat less). Or you can just plug yourself into an electric socket, but then you'll have to be holding in place for a little while. (?)
+
+
+Multitasking: I don't want to have a complicated attention system, and I definitely don't want to have the same inventory slots as roguelikes have had since forever: Armor slots, jewelry slots, weapon slots, tool slots... no, just no. 
+
+The solution? Simplify that shit down to a "multitasking number" that determines how many tools you can be using at the same time. For now we'll make it so that you simply can't exceed your multitasking number so that it remains a nice and gamey mechanic, trying to make it so that you can exceed the multitasking number would require determining how "complicated" a situation you're in to not be... amusing.
+
+It's OK for the cost of switching tools to be the same as the cost of switching jewelry in other roguelikes, i.e. a turn or two of your time. That way it'll feel like you're fumbling with your stuff if you're trying to change tools in a tight spot but not have any problems with changing equipment in other contexts.
+
+Usually in roguelikes you have two ring slots, an amulet slot, and a bunch of armor slots of which some might be fairly easily switchable. When flattening everything into a single number I'd say it'd be best to go with...
+
+2 - base multitasking number for all characters
++ 1 automatic bonus for the half-brained abomination archetype
+ + 1 further bonus for abominations for getting the proper software
++ 1 gainable by a difficult-to-learn mental discipline
++ 1 working memory enhancement cyberware (replaced by software for abominations, available for less sanity loss than the very heavy cyberware)
+
+= the very best multitasking number you can get is 5, but for most characters, getting up to 3 will be a significant game-changer, and 4 will be really, really good if you ever get to it. 
+
+
+Social skills: 
+
+Just some vague ideas. Maybe you could "command" NPCs to move in a certain direction or to a certain place? Obviously there could be some way to "bluff" - if you haven't shot at someone, they don't really know for sure you're the enemy yet, though having committed "crimes" (how to determine what actions are hostile?) will increase the situational penalties. That is, that's not just for the bluff skill, that's for all skills. So, um:
+
+- bluff: Turn a hostile actor into a neutral one if you haven't attacked them yet
+- manipulate: Command an actor (even a hostile one, but at a hefty situational penalty) to move to a certain spot. (needs to have the AI to have an action plan *and* a measure of how much it needs to be surprised before it changes that plan. Otherwise, sort of like giving any actor a pet command, except, you know, more likely to fail.
+- charm: Turn an actor into a friendly one. Allows you to use pet commands ala crawl on them. Of course, charm's just a name - this skill can basically mean anything you do to get some actor to do what you happen to need them to do
+- all of the above are for individuals; might have some sort of crowd manipulation 
+- general espionage stuff (needs a cool name, though I guess just "reveal information" or whatever would work) for revealing map tiles. "Interview"?
+
+So here's a more basic problem then: Since I want variation in challenges, different actors will have to resist social skills differently. And that's going to need some stats in order to be properly transparent. Also: Situational modifiers need to be *big* 
+
+"You exchange the %s a chocolate bar for %s."
+"You tell the guard you saw a disturbingly furry... thing and if they could please go investigate."
+"You ask for directions to the office of Dr. mumble Smith."
+"You smoothly fast-talk the %s."
+"
+
+Security cameras:
+
+Big deal or not big deal? Because big deal would be sort of interesting but might introduce too much complication to the game, whereas not big deal would be... oh, wait, of course. Basically here's the deal with security cameras in lore terms: In the early game, when you're mostly facing fairly low-security outfits, security cameras won't be a problem - you'll be able to hack the whole lot well before you go in and have them display whatever you like. But later on, in bigger buildings, there will be multiple redundant and overlapping camera systems, some of which are too difficult to hack into. 
+
+Your tools against security cameras include retroreflector detectors (full certainty of spotting security cameras, rather than the merely very high chance of spotting them that you get without), any ranged weapons (security cameras are easily destroyed - but beware, as most outfits that actually have security cameras that you couldn't just make irrelevant will be able to respond very quickly to something like that), on-the-fly hacking (maybe the game could ensure there's a path to a wiring cabinet in which you can do your dirty work that doesn't have security cameras on the way?). Being spotted by a security camera would be immediately known to the player if it happens and have a single effect: a 60% chance of losing some avenue of advancement (that is in the high level, not in the current mission) that was previously open to the player. Can only happen once per mission. (note that the mission itself will still be able to succeed, it's just that some offer - that you didn't specifically put work into - will likely be retracted
+
+
+Concealment:
+
+I think I finally have had a decent thought regarding this: I never wanted *both* concealment *and* cover to be common, because that's just going to annoy the player and make things difficult to deal with. My original plan was based on starting from the "bulletproof couch" trope (i.e. lots of cover all over the place) and then adding on to that things like smokescreens (so, a little bit of "just concealment" here and there). The solution? Be less cinematic! By far most things should simply provide concealment and no cover at all... maybe even walls should only provide partial cover (though full concealment). Though, of course, that opens up the "slight" problem of just what glass walls mean... well... it's Straylight, we'll just say it's all plexiglass, and usually bullet resistant at best. (note: have some kind of a "bulletholes" object?)
+
+
+Character advancement:
+
+Probably got this one down while skiing. Missions give two things: Opening up advancement slots, and giving advancement points. You've got a list of open advancements (that will tend to grow toward the endgame as your options become wider and wider - all in the theme of optimistic transhumanism), each of which has a point cost. Put enough points in an advancement to cover the point cost and boom, you have it. The widening of the options allows security cameras to be a little bit harsher while actually being gentler: Being spotted *always* closes some avenues of advancement, but never one among the #1 avenue in terms of point investment. If you have no advancement points to spend, you must go on missions to gather more.
+
+(conceptually, advancement points stand for... time, quite simply. Time for training, learning, surgery, politics, business, etc.. Do well, and you'll push back the tide of Things To Be Done for a while, and thereby will have more time for advancement.)
+
+On AI behaviour:
+
+The most important reason why it's sort of difficult to kill people is that they don't really want to be killed, i.e. if they get hurt they'll run away (and, unlike in crawl or something, there won't really be a benefit to hunting them down, esp. since they won't be healing up while they're gone)
+
+So we have keybindings looking something like...
+
+1-9: movement
+numpad 1-9: also movement (so that the user won't have to worry about numlock state)
+.ykuhlbjn: more movement! (9-directional vi keys)
+@: character screen
+?: help screen
+c: charge/jump
+d: drop
+f: shoot
+g,: pick up
+i: inventory
+o: open/close
+z: recharge (akin to "sleep", or zzzzz)
+s: special ability menu
+<>: operate stairs
+x: examine
+
+
+Possible keybindings in the future:
+
+a: apply/handle/operate (a map object)
+p: push (a map object)
+t: throw
+r: reload

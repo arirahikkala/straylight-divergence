@@ -1,0 +1,17 @@
+After months and months and months of on-off (but by far mostly off) development I'm pleased and a little bit relieved to finally release a playable and winnable version of Straylight Divergence, a science fiction roguelike game with an eye for... shamelessly stealing good ideas from other games. Straylight Divergence features:
+
+- A mixture of melee and firearms combat, with cover as a significant element in gameplay
+- Acrobatic combat moves controlled by "dancing" a la PrincessRL
+- No killing rats or worrying about food - you are a badass superagent right from the first turn
+- Equipment- and implant-based raceless, level-less, XP-less, skill-less and almost classless character customization
+- Five character archetypes to kick off a specialised build (while avoiding limiting your later options): Homo Superior, Catlike Assassin, Hulking Brute, Half-brained Abomination, and Robed Ascetic
+- A mid-hard approach to the science fiction theme, avoiding things like rayguns and psionics, but allowing for all sorts of cinematic transhumanism and weird physics
+- Character advancement based on a large tree of perks ranging from mundane advantages like increasing your character's hitpoints, to special abilities like wallrunning or ability to "undo" actions
+- Cyberware, bioware, nanites, performance-enhancing drugs, special mental disciplines, and more ways to make your character greater than human!
+- A variety of psychoses to suffer from if one goes too far in one's human enhancement forays (based on a sort of sanity meter)
+
+
+Stuff for later versions:
+
+- A map generator producing rooms and buildings that contain plausible clutter and have a "people work here" quality so commonly absent in the usual romps through bare-floored dungons
+- Cover, concealment and stealth all significant elements in gameplay

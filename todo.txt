@@ -1,0 +1,47 @@
+It begins, the todoification!
+
+- Test SaveLoad2.hs, it might well be broken so fix it if it is
+- Put in some furniture object types, at least tables and chairs
+- Actually introduce some furniture generators
+- Separate different types of furniture objects
+- Centralise keybinding management (no need to make it dynamic yet though)
+- Add blood splatters and figure out how to pick a rendering colour
+- Extend menu() with support for categories, maybe some visual customization
+- Figure out how to make menu() work as a proper interface element
+- Add some sort of markup for coloured text in messages, and consistent support for it wherever stuff is output
+- Implement wallruns!
+- Attach some useful purpose to rooms in mapgen and export this data to the game state
+- Make the interface scalable up from some minimum size (80x24 is good of course)
+- Complain and exit if the playing window is too small
+- Put all Mapgen-related arguments in makeMap
+- Cap line length to 80 characters in all source files, and get used to working with that cap. *Maybe* 100 characters, but with the defaults on my screen, I can just fit two 80-character lines side by side comfortably, so 80 would sort of be preferable.
+- Make some sort of fancy (nonuniform) floors?
+- Consider enclosing GameState behind an interface that uniformly ensures strictness
+- Split up renderWalls
+- Make findMatchingCorridor prefer to maintain corridor widths
+- Abstract out the distinction between TileS and ObjectS?
+- Probably drop either acceptFun or beamFun from TargetArgs as it seems you should only really need one
+- disallow jumping through glass walls
+- Menu.hs needs a "only handle accelerators on this page" feature (for instance for picking things up - there might be too many items in a tile to assign a unique accelerator for each)
+- Convert any readFile calls into a proper data directory using deal
+- restrict calm-state pathfinding to not going outside the home compound at all? (it won't choose a target outside the compound, but it can pathfind through its outside if that's the shortest path - it's currently even possible to confuse the AI into going into a different compound by bumping into it when it's outside its home compound)
+- implement calm-state AI in general
+- rewrite corridorishness in Room.hs:connectCompound, figure out if it does anything
+
+Done:
+
+* Port hscurses to base-4
+* Handle targeting requiring line of sight
+* Generalise game state for multiple levels
+* Make menu() toggle the selection of all items fitting a given accelerator
+* Make menu() grey out items with quantity_ = 0 (seems like a decent and useful interpretation)
+* Add a "describe" function that gives short descriptions of in-game objects (works at a ridiculously basic level)
+* Add memory of previously seen objects (on map)
+* Add support for cycling between targets in target()
+* Decide on inventory system, equipment slots
+* Add a shootingTargetFunc that makes proper use of the target list (implemented as just fixing target)
+* Fix the whole issue with currentLevelRef_ existing, level-specify most of Game.hs, try and clean and specify and consistentify stuff that was made messy by the globalification of positions_ and references_
+* Make renderWalls render glass walls properly
+* Make addOutside break up big compounds in a more natural manner
+* sizedRectToBoundsRect and its twin brother are starting to proliferate in Mapgen/. Slaughter the inconsistent-with-Ix ilk of SizedRect, all of it!
+* Add the "noBlockedOpenings" condition (must have no doors "behind" a non-walkable tile) in Furniture.hs:layoutAllowed

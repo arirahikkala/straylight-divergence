@@ -1,0 +1,32 @@
+Characters that make for interesting enemy types:
+
+d - dogs; fast, annoying, can't be bypassed with con
+g - guards; the usual fare
+o - in Straylight, considered normal to be employed by companies and found on the premises. Essentially, more badass than g.
+m - less badass, and rarely used, but when used, come in organised groups
+u - might lead m's or come alone
+h - bio-horrors
+a - mostly like m or u but with heavy armor
+c - MIBs without the ties
+s - MIBs, significantly badass
+
+
+Things that might serve as enemies more rarely:
+
+l - labcoats; untrained guys with really dangerous equipment
+f - penguins; good for the rare villain who might just be competent with guns too
+r - drones; all sorts
+
+
+
+Now for the etiology. How do AI guys behave? How do I get to behave them the way I want them to behave without wasting too much CPU time? I don't have very many monster types - I should want them to just be uniquer for that. But, I don't want complex behaviours just now, just a couple:
+
+- guard patrolling behaviour: Choose a random point inside your compound, walk there, choose another point, etc. (kinda-sorta-justification: Straylightian physical security policies assume attackers already have good information about patrol routes, etc. - so they use the best strategy that exists against a knowledgeable adversary, i.e. act randomly)
+- base noncombatant behaviour: Similar to patrol behaviour, except instead of just pathing between randomly chosen points within their compound, have them path between points where they can do "work" and sit at those points for a while. If where they're going is occupied, converse with the person occupying the space. (more precisely: decide on a point to go to and a time to spend going there; path there, and any time the tile you're trying to enter is occupied, converse with the person in that tile instead. If the person you're conversing with is another non-scared noncombatant, have a 20% chance of swapping places with them every time you try to enter their tile. This behaviour rule *should* lead to a workplace where people seem to be doing things and occasionally walking around and going to each other to ask questions, and also bumping into each other in doorways and chatting about things but won't get into big discussion-traffic jams)
+- scared noncombatant behaviour: Head for the closest compound exit, then for the closest level exit. Your last seen position acts as a major traffic obstacle though one whose cost falls off exponentially by distance. (also, just for the sake of performance, try to be reasonably smart about when to pathfind). Compounds should probably panic all at once so that it's obvious when shit hits the fan.
+- combatant aggress behaviour: Complicated! Should be the most interesting of the behaviours, after all. Cover-seeking and teamwork and all sorts of fun shit go here. But, for the first version, walk and shoot at the player. 
+
+
+And then, spawning. Again we come to a weird Straylightian tradition: There's sleep pods in every nook and cranny. Nobody really thinks it's a *good* idea, it's just that people have gotten used to the idea of sleeping at the workplace, so by now it's become standard that you house employees at the job. Some technically homeless Straylightians can even be fairly wealthy, they just don't want to spend their wealth on the rent. Similarly, although sleeping pods used to be temporary furniture, these days they're well-integrated but usually also somewhat hidden behind panels or curtains.
+
+For spawning behaviour this means that any room can spawn a (limited) amount of actors, and spawning can occur in sight of the player. Simple and easy! Just print a "x climbs out of a sleeping pod" message. 

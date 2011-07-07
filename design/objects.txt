@@ -1,0 +1,131 @@
+The bruteforce approach to designing the Object type: Just list fucking everything you can come up with that might go there at some point and see if you can pick up a pattern. (actually I think I tried this before... but that was a while ago and I knew a lot less about the design then)
+
+Basic idea: In general, things that stick around on the map are objects. However, walls are not objects. Floors are not objects. Properties of objects are not objects. States of lighting, should they ever be implemented, are not objects. Explosions and flying bullets *could* be objects given the subject matter of the game (it is conceivable that a really high-level character *would* be able to actually react to them, in which case they would in fact have to stick around on the map for monsters to be able to react to), but we'll look into that a lot later if ever. Globs of liquid might be objects, though they should turn into puddles of liquid outside containers, and in any case as liquids they can be a bit difficult to work out. Bloodstains are almost certainly objects.
+
+The player character
+Human NPCs
+Animal NPCs
+Robotic NPCs
+Lamps
+Torches (the battery-operated kind)
+Security cameras
+Plants
+Melee weapons
+Ranged weapons
+Weapon turrets
+Display stands
+Crates
+Doors (with specific locks)
+Keys/keycards (to specific locks/sets of locks)
+Stairs/ramps/escalators/elevators
+Chairs
+Beds
+Tables/desks
+Frag grenades
+Smoke grenades
+Smoke
+Other gases?
+Computer terminals/desktop computers
+Vehicles
+Data-containing items: Discs, USB drives, hard drives, laptops, paper. Contain paydata, ability unlocks?
+Drug doses (all drugs come with autoinjectors, so no needles needed)
+Cybernetic implants
+Rubble
+Pieces of broken furniture
+Gibs
+Blood splatters
+Ammunition (let's just avoid magazine tracking as pointless micromanagement)
+Cable/wire/rope (don't know what interactions these will have yet, will figure out later)
+Lab equipment
+Statues/columns/streetlights/flagpoles
+Armor
+Lockpicks/sequencers
+Food (another "mess" object)
+
+
+The analysis of objects.ods reveals a few common traits and classifications:
+
+- the "mess" objects: Blood splatters, gibs, rubble, pieces of furniture. Since for now you're not going to have problems with foothold and balance, and these items won't really have any use, they'll all be simply decorative. Other names of items in this category: Debris. Shouldn't even need to have a hideability.
+- the NPC objects: Should be OK for none to be carriable, but I'd prefer it if there were both immovable AI-ful weapon turrets and carriable ones
+- otherwise: This seems a good rule methinks: NPC or immovable implies uncarriable, anything else is carriable (and must have a hideability stat - note that I don't intend to really have any weight-related carrying limit)
+- keep in mind that I might want to add light sources in at some point
+- quest items objects: Do objects know themselves that they're quest items, or do quests just refer to objects? The latter is kind of a good reason to... oh, yeah, really, I think it's time to go "fuck that shit" about separate objrefs per map and just put every objref in the same container. This is also going to imply adding a map id to Location's OnMap constructor. This way it'll actually be possible to refer to objects across maps in a sane way. And in that case, it's going to make perfect sense to have missions in the game state and have them refer to the mission object once it has been generated. I think.
+- some things will block walking when placed on the map, some will block vision
+- some objects respond to being opened and closed, plus locked and unlocked
+- some objects can be climbed on top of when they're on the map (in some later version)
+- some objects can contain other objects
+- grenades can explode and have a game effect when they do (remember that they can't just have a GameT effect because GameState needs to be serializable)
+- guns can be loaded with ammo: This might either mean changing a property on the gun and destroying the ammo, or inserting the ammo inside the gun. (former is sort of preferable as it allows completely disallowing guns from having contents, though otoh the latter wouldn't be that bad either probably, and would make it easier to add different ammo types or trick ammo or whatever)
+- certain objects can be wielded, possibly allowing ranged attacks, and having certain effects on those attacks
+
+Having a look at some other roguelikes... well, only Crawl for now since I'm lazy:
+ - we could use things that exist in both games, are (probably going to be) implemented as objects in this game, but are *not* objects in Crawl as examples of weird cases that, while they might remain objects here, will have little in common with most other objects.
+ - these things include:
+  - clouds (I intend to have smoke clouds; however, what is a smoke cloud but an object that can't be picked up, can be walked through, either can or can't be seen through depending on its age, that has a concealment effect, and that might cause damage (on its subjective turns? So it needs to be sorta actorish?)
+  - actors (almost certainly not going to become not objects by now; however, they might just get to form a structure of their own)
+ - 
+
+
+It seems it will be very hard to predict whether any function in the Object interface will merely require the Object itself or arbitrary access to game data to produce a meaningful value. Such is the price of doing roguelike design - the problem area is simply too hugely complicated to really make any sort of clean designs. Of course, the problem now arises: We don't want to just pass in an ObjRef to any function, because there might be a large hierarchy of functions that want to look at that object, and looking the object up anew in each function would be terrible for performance and look really really bad. But we also can't pass in an Object because then we don't know the ObjRef and can't look up anything interesting about the object. So, the solution is: Pass in both. But because this is going to be a really common thing, it would be rather preferable to not have tuple management all over the place for it... well, there'll have to be some kind of accessors, but... yeah, basically:
+
+data SpecificObject = SpecificObject { obj :: Object, ref :: !ObjRef }
+
+Only very trivial functions may have a type matching Object -> foo. That is, every function that will almost certainly never need to have access to the game state outside of the object definition itself - which isn't much as long as the object definition is up in the air the way it is now. Mostly you should be seeing SpecificObject -> GameT m foo. 
+
+The problem with this is, of course, that only very trivial functions exist so far in Object.hs... however, just because the functions are trivial doesn't mean their semantics are trivial. Take isActor for instance. What this function actually means right now is "can this respond to freeToAct? Also, should this be considered a target in target lists? Also, if this is found in a tile the PC is trying to move to with a bump command, should the PC attack it?" You'll note that all of these questions should almost certainly be independent:
+
+- there should probably be a priority queue or somesuch of active objects, so that iterating through every object every turn (keeping in mind there might be.. quite a few) can be avoided; while the place where isActor currently gets called would get replaced by going through this queue, otherwise it'd be a lookup in said queue. (actually I'm not sure a priority queue would be the right choice as we won't really be needing monsters to have actions 200 turns from now and such - what we'll need is just a list of who might be active on each turn, and if they're not really active they just won't do anything)
+- target lists would probably be best served by some sort of threat metric, maybe even attempting to do a threat*cost computation for the player
+- changing the bumping action implies a more general "tile-occupying" feature, with interactions with rendering order (in fact object rendering order probably should be something like tile-occupying objects > stairs > other stuff). Separately, objects should have the ability to block or not block wallruns.
+
+So you'll note that it seems there should be no isActor predicate. Rather, because of clouds, grenades, etc. there should be a general takeTurn function (very much a SpecifiObject -> GameT m Object case (noting the minimalisation of the return type to just Object so that objects taking turns don't accidentally step on each other's toes... not that that would be likely to happen at all, but, it's sort of the most correct type given the intended semantics of SpecificObject, so, dunno). Then there's the matter of ranged targeting. For which, yeah, I guess I'm just going to try for a generic threat metric for now, will see about cost-benefit analysis later. 
+
+
+... you know, I'm starting to think that maybe the current design for Object is not actually all that bad. Sure I guess I'll be mashing a few constructors together and adding a lot of new ones, but really, it's not like I can come up with a design that's somehow both better at discriminating for objects that actually have meaningful (wrt. real life) combinations of properties *and* more general and unrestricted. And really, beyond location and identity there really isn't all that much that you absolutely know has to be stored per each object. Thinking of something like Crawl's item_def whose fields' meanings are heavily overloaded, having separate constructors for different sorts of objects certainly doesn't sound like a *bad* idea. All I've got to do is make sure to avoid cases where an object that I'll want to add into the game falls really badly between existing constructors.
+
+So, with that. There are some Object constructors which are clear cases of "a bunch of static data that there's really no reason at all to store inside the Object", i.e. things that should just be enumerations... or, I suppose, being that I'll want to read things like furniture definitions in from a file, either just those definitions, or indices of those definitions, or even an index-value pair with a special Read and Write instance to keep it from bloating the savefile by repeating the static definitions for each object.
+
+One thing: What bumping means should, I think, generally depend on the object. Probably something like SpecificObject -> GameT m (Maybe BumpAction), data BumpAction = BumpOpen SpecificObject | BumpAttack SpecificObject | etc.. When bumping a tile, catMaybes the BumpActions of the objects whose Location is OnMap that tile. If more than one option, present the options to the player.
+
+So, let's see. The Object interface will be... huge, to be honest... but let's just see if I can list everything that I can come up with that's going to be needed to implement the interactions I want with the above object types:
+
+data ItemCategory = -- the categories that items can be of; control some aspects of what commands can be used on objects
+ RangedWeapon | MeleeWeapon | Decoration | Furniture
+
+Decoration contains items that only afford the barest of interactions:
+- rendered on map
+- mentioned in e'x'amine
+
+These include rubble, blood, debris, carvings, special floors, etc..
+
+Furniture contains items that are not supposed to go in the inventory and that are meant to have a restricted set of interactions (above what Decorations have):
+- cover
+- concealment
+- possible ability to take damage (something like rubble probably won't respond to the levels of damage you can reasonably expect in this game, though)
+- possible ability to be moved around by characters or pushed by explosions
+
+
+
+
+
+itemCategory :: Object -> ItemCategory
+
+concealability :: Object -> Int (percent) -- return maximally unfavourable results (no concealability) for items that should not be able to be carried
+
+mass :: Object -> Int (grams/arbitrary) -- *might* be used in inventories, but the main purpose I'm thinking of is how things respond to explosions
+
+acceptContent :: Object -> Object -> Bool (can object A contain object B? For instance, guns can only contain ammo.)
+takeContent :: (Monad m, Functor m) => Object -> Object -> GameT m ()
+
+contentsAreAmmo :: Object -> Bool (controls what command(s) can be used to insert objects into this object)
+fire :: (Functor m, Monad m) => ObjRef -> GameT m ()
+
+cover :: Object -> Int (percent)
+concealment :: Object -> Int (percent) -- not sure this will even go in at all, but if it does, will be quite good for smoke, some furniture, plants, etc.
+blocksWalking :: Object -> Bool
+blocksVision :: Object -> Bool
+
+
+
+
+Mines and prox mines will be handled later. I don't want to just have them handled in doTurn or whatever as in that they won't explode in case you walk by "quickly". Probably won't be that complicated though come to think of it... just have something like proximityRadius :: Object -> Int (returning -1 for none, 0 for same tile, etc.), proximityReaction :: (Functor m, Monad m) => ObjRef -> ObjRef -> GameT m ()

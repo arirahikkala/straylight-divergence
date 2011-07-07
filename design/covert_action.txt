@@ -1,0 +1,4 @@
+Consider Covert Action and where it went wrong, according to Sid Meier: The action part of the game was too "intense", or took too much of the player's time, so that when they got out of the action part they had forgotten what the plot was actually about.
+
+The really obvious solution in the roguelike context is to just focus on the action and largely ignore the larger mystery. But, of course, there are already enough roguelikes that do that. So, instead, how to design a game where the action is there, but the player will keep her eyes on the goal throughout the whole thing?
+

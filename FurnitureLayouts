@@ -1,0 +1,26 @@
+[StoredFurnitureLayout {
+   layoutCharacters = "office", 
+   layoutMap = ["p.cc ",
+                "$_   ",
+                ".    ",
+                "$_   ",
+                "`  ss"], 
+   layoutWallConstraints = (AnyWall,NoConstraint,NoConstraint,AnyWall), 
+   layoutActivityPoints = [ActivityPoint {apActivityType = "useWorkstation", apLocationInLayout = Coord {x = 1, y = 1}},
+                           ActivityPoint {apActivityType = "useWorkstation", apLocationInLayout = Coord {x = 1, y = 3}}], 
+   layoutRooms = ["officeGeneric"]},
+ StoredFurnitureLayout {
+   layoutCharacters = "office", 
+   layoutMap = ["| |",
+                " | ",
+                "| |"],
+   layoutWallConstraints = (OpenSpace, OpenSpace, OpenSpace, OpenSpace), 
+   layoutActivityPoints = [], 
+   layoutRooms = ["officeGeneric"]},
+ StoredFurnitureLayout {
+   layoutCharacters = "office",
+   layoutMap = ["c ",
+                "c "],
+   layoutWallConstraints = (NoConstraint, NoConstraint, NoConstraint, JustPlainWall),
+   layoutActivityPoints = [],
+   layoutRooms = ["officeGeneric"]}]

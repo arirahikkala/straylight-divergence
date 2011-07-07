@@ -1,0 +1,7 @@
+[FurnitureCharacters {charactersName = "office", 
+                      charactersDefinitions = [CharacterDefinition {cCharacter = '.', cMeans = "floor"},
+                                               CharacterDefinition {cCharacter = '$', cMeans = "workstation"},
+                                               CharacterDefinition {cCharacter = '_', cMeans = "seat"},
+                                               CharacterDefinition {cCharacter = 'c', cMeans = "couch"},
+                                               CharacterDefinition {cCharacter = '\'', cMeans = "shelf"},
+                                               CharacterDefinition {cCharacter = '`', cMeans = "camera"}]}]

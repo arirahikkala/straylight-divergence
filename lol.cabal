@@ -1,0 +1,17 @@
+Name: lol
+Version: 0.0
+Description: A roguelike of lol
+License: GPL
+License-file: COPYING
+Author: Ari Rahikkala
+Maintainer: ari.rahikkala@gmail.com
+Build-Type: Simple
+Cabal-version: >= 1.2
+
+Executable lol
+  Hs-source-dirs: src
+  Main-is: Main.hs
+  C-sources: cbits/IndexPriorityQueue.c cbits/AStar.c
+  cc-options: -std=c99 -O2
+  Ghc-options: -auto-all -rtsopts
+  Build-Depends: base >= 3 && <5, data-accessor, data-accessor-template, random, mtl, hscurses, containers, array,  MonadRandom, fgl, vector-space, Graphalyze, process, PSQueue, QuickCheck >= 2 && <3, MaybeT, deepseq, derive, astar

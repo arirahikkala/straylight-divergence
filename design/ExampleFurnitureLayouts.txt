@@ -1,0 +1,168 @@
+Some meeting rooms:
+
+A conference room with some papers strewn around the big table, a pile of chairs in a corner, and some computers with a stack of dvds next to them.
+
+###########
+#_........+
+#.........#
+#".._==._.#
+#".._=?_..#
+#$.._==_..#
+#$.._==._.#
+#%.._=?_..#
+#....__...#
+#........`#
+#####+##+##
+
+A small room for meetings with small teams:
+
+######
++....#
+#._=_#
+#._=_#
+#._=_#
+######
+
+A classroom-style conference room:
+
+####+##########
+#""`._.._....|#
+#.......=.....+
+#"............#
+#._._._._._._.#
+#._._._._._._.#
+#._._._._._._.#
++.............#
++.""..........+
+###############
+
+A large conference room with a main table in the center and observer seats around it:
+
+############
++.\\\\\\\/.+
+#.\....../.#
+#_\._==_./_#
++.\._==_./.#
+#_\._==_./_#
+#.\._==_./.#
+#_\._==_./_#
+#.\._==_./.#
+#_\._==_./_#
+#.\._==_./.#
+#_\._==_./_#
+#.\....../.#
+#..........#
+#####++#####
+
+Some offices:
+
+A bog standard office (for two people):
+
+#######
+#"._..#
+#".$=.#
+#"....+
+#.$=."#
+#._.."#
+#######
+
+A nice office for middle or high-ish management:
+
+#######
+#""""|#
+#.....#
+#_=._.+
+#.=._.#
+#....|#
+#######
+
+A truly ostentatious office for a really big shot (and even with really big shots, one with delusiouns of grandeur):
+
+###########
+#|.......>#
+#...#######
+#....||||##
+#|==.....|#
+#|_=......+
+#|.......|#
+#.."""."""#
+#.........#
+#..""""""|#
+###########
+
+
+A bathroom with a shower and a washing machine:
+
+#####
+#|._#
+#;..#
+###+#
+
+A dormitory:
+
+#############
+#_._._._._._#
+#"."."."."."#
+#...........#
+#++##########
+
+A sleeping closet with a bed, a bedside table, and a cabinet.
+
+####
+#".+
+#=_#
+####
+
+
+A high-tech lab with a computing cluster as a hasty temporary installation in the corner:
+
+############
+#~$==="""""#
+#=_.__.....#
+#?.._......+
+#!_........#
+#!...."""""#
+############
+
+
+And here's the same with a couple of scientists and the player milling about, plus some activity with papers and computers and stuff:
+
+############
+#~$=%="""""#
+#=_.c_.t...#
+#?........@+
+#!_.ll..t..#
+#!.=$="""""#
+############
+
+
+A large portion of all of the rooms should be lounges, corridors, etc.:
+
+#######++#######
+#____.....|.|.|#  | are coatracks, except for the one in the center, which is a statue
+#.........|.|.|#
++......|..|.|.|#
+#..............+
+#...______...$$#
+#++########+####
+
+#++###
+#...$#
+#...$#
+#....#
+#....+
+#....#
+#=_..#
+#....#
+#=_..#
+###++#
+
+
+Room type selection (for the Campus mapgen) should go something like:
+
+- rooms with four or more connections are always lounges/corridors
+- lavatories can only ever have one exit; try to have one per compound-with-at-least-five-rooms
+- compounds are of a few different sorts:
+  - ones with less than two rooms are always storerooms, containing vehicles and such (probably not much of a need for AI behaviours involving those for a while; probably will want to come up with some high-level way to specify NPC behaviour before that, honestly)
+  - others are either offices or residential blocks
+  - 

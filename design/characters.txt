@@ -1,0 +1,64 @@
+@ the PC (the character currently controlled by the player)
+a ("armored") a person obviously wearing body armor
+b ("business") a person in business casual wear
+c ("catsuit") a person in a dark form-fitting suit
+d ("dog") a dog (possibly guard dog)
+e ("exercise") a person in exercise wear
+f ("formal") a person in formal or semiformal wear
+g ("guard") a person in rent-a-cop-ish wear
+h ("humanoid" or "horror") something that's human-like but obviously not all human
+i ("invisible") a person not sufficiently well visible to see their attire
+j ("jeans") a person in casual wear (usually jeans and a t-shirt)
+k
+l ("lab") a person in a white coat
+m ("military") a person in a combat uniform
+n ("nude") a person in the nude or in their underwear
+o ("officer") a cop
+p ("pet") a domestic/pet animal other than a dog
+q
+r ("robot") a robot, a drone, etc.
+s ("suit") a person in informal attire
+t ("teacher") a person in academic / smart casual wear
+u ("uniform") a person in a dress or garrison uniform (see m for combat uniform)
+v ("vicar") a person in liturgical wear (of any religion)
+w ("work") a person in coveralls or such
+x
+y ("young") a young person or a child, in whatever clothing
+z
+
+[A-Z] a person with plot significance, squad member, etc. person whose name is known
+[0-9] a person automatically or manually marked as significant, for instance for the purpose of handling tails
+
+  nonvisisible floor/ground
+. visible floor / ground
+# a wall
+<> stairs, ramps, ladders
++ Closed door
+- Doorway
+& vehicle
+_ chair, stool, bench, bed - platform for people to sit on
+= table, desk, workbench - platform for work
+" cupboard, closet, wardrobe, locker, safe, bookcase - heavy container
+' synonym for " in layout files
+[ briefcase, box, cooler - light container
+] key, lockpick, keycard
+` security camera
+~ cable, wire, rope, pipe
+! lab equipment
+? paper, book, pamphlet
+% pendrive, cd, floppy disc (?), archival tape
+$ computer, tv, etc. electrical equipment
+{ misc. tool
+| statue, column, fountain (no magical fountains here :p), flagpole, streetlight, etc. decorative vaguely pole-shaped thing
+; misc. furniture, useless-to-player devices
+
+( weapon (ranged/melee distinction?)
+) clothing, armor
+* grenade, mine, explosive
+
+,:}/\
+
+Then there's the matter of map character colours. Let's give a try to a couple of roguelikes out there:
+
+- ADOM: The few dungeon features are generally coloured representatively: Doors, being wooden, are brown, beehives are yellow, pools are their water colour, etc.. A few monsters might hit their representative colour, but a lot of them are coloured rather imaginatively.
+- Nethack: Colourless here for some reason, 

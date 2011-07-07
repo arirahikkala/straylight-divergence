@@ -1,0 +1,5 @@
+I AM TOO AFRAID TO MAKE DESIGN DECISIONS
+
+OK, right, so. Instead of defining every attribute furniture might have, define the absolute minimal attributes to enable the features I want to get in right now or really soon. And what's that?
+
+-

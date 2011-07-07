@@ -1,0 +1,60 @@
+Psychosis! Caused by combat drugs, psychological pressure (simply from a villain playing with your mind, to something like brainwashing), or headware cybernetics.
+
+The mechanic: Your character has an integrity score and a disruption score. There's a couple of ways to improve your integrity score (mental disciplines, being a homo superior, rest?). Your disruption score on the other hand is the sum of all disruption effects from drugs, psychological pressure, and cybernetics. As long as integrity >= disruption, everything is OK. However, should disruption become greater than integrity, you become susceptible to disorders.
+
+(one possible complication: Neuroplasticity treatments? You get to not pay a disruption score for some ware - with the cost that if said cyberware ends up broken, disconnected or excised, you pay double its original disruption score until you replasticise. Or something like that? Definitely a flavour feature anyway...)
+
+So, to repeat and add, stuff that causes disruption:
+
+- cybernetics, having it in the first place
+- combat drugs
+- cybernetics breaking (always a chance of this happening in a fight - for instance, you might have a cybernetic device start producing "noise" due to a hit but otherwise work, in which case you can just turn it off but then you'll obviously lose its benefits; or you might have one become noisy *and* unturnoffable (though in this case it will never cause permanent damage))
+- psychological pressure (fun and creepy shit for endgame enemies to do, hacking your brain :)
+
+The end result is that missioning will take not just a physical but a mental toll, which can cause problems when you're likely already on the edge of what your brain can take. In a later version the game might even make you make choices like "turn this cyberware off now, or risk very likely permanent damage (90% chance)"
+
+Here's a couple of fun disorders to have, several of them cribbed from Featurecreeper:
+
+- Macabre hallucinations. The world seems dark, dank and grey, and there are... things... just at the edge of your vision. Dead bodies seem to have terrifying, /knowing/ grimaces on their faces, and... did that one just move? (in game terms: Uh... something fun to do with corpses?)
+- Delirium: The colours are brighter, light glints in your eyes, today is an excellent day! What could be better than dancing with the little forest animals through an easy life? (in game terms: A fairly straight copy of featurecreeper's hallucinations could work quite well)
+- OCD: Got to check it again. Got to check it again. Got to check it again. Got to check it again. Got to check it again. (randomly print messages like "There is a <highly desirable item> on the floor here" when leaving an area)
+- Loss of sense of direction: Wait, where was I going again? (rotate the map just like in featurecreeper. Could be best left out because of UI annoyance... maybe a short, half-second animation of directions getting scrambled so you just have to take your bearings but don't actually move in the wrong direction simply because of UI fuckery; might be that the move you input still gets run, though that's still quite problematic because bumping means so many different things of which some you are not interested in doing)
+- Blackouts: How the fuck did I get here? (regenerate the map, see if you can place the player in an amusingly "wtf" position)
+- Object duality, hallucinations ala Problem Sleuth or the AsylumRL design. (a gun might appear as a tree branch maybe, or lipstick as a chainsaw) Could be sorta difficult to implement nicely though.
+- Sticky curses inflicted on inventory items?
+- Intrusive thoughts: Say fun stuff to the player... while making the PC miss turns
+- Hemineglect: Half of the PC's field of view (depending on which direction they moved or attacked in last) goes dark
+- Dissociative-induced psychosis (for lack of a better name - might use this as a possible "intoxication" effect of combat drugs rather than as a sanity effect): Randomly move the screen "focus" (where the PC is placed) around the 9-tile area in the center, at some small probability per turn
+- Hearing voices: Similar to intrusive thoughts? Also causes losing turns, or not?
+
+-> note that both the inebriation and the loss of direction effects are going to need a map interface layer (to be used by target, renderPos, etc.); generating maps for blackout might be done in a low priority background thread (otherwise it's probably too slow), though look for roguelike players to be annoying and complain about that being gameable... 
+
+
+
+
+"For decades it was considered an insurmountable problem in neuropsychology that drugs with neurological effects, cybernetics that are directly connected to the central nervous system, and simple particularly strong psychological pressure disturb the fragile homeostasis and internal regulation of brain function. The development of ever more ambitious implants and implantation methods, not to mention ever more complicated designer drugs, only led to patients presenting with ever stranger neurological disorders down the road. It seemed the plasticity of the human brain had fundamental limits, limits so low as to disappoint even the most conservative enthusiast of human enhancement.
+
+However, eventually research into the precise details of the regulatory feedback loops in the human brain crossed a certain invisible threshold: It was realised that there were very specific, and often highly unexpected, mental disciplines that could be used by attentive persons to diagnose and control the functioning of their own brain. Long-used techniques such as different forms of meditation, productivity tricks, even personal quality processes, were alternately completely repudiated or significantly improved as techniques to actually stabilise and optimise human neurological function were published.
+
+By now the interplay between the brain's natural or possibly fortified self-regulation, and the disruption caused by any but the most precisely tailored implants and drugs, has been developed into a remarkably simple and safe toolset. The Wechsler-Golden Neuropsychological Battery provides a simple rating of the strength of a person's neuropsychological dynamic integrity, and accurate results results of however much disruption one might be under at the time. At the same time, all cyberware and drugs are designed to have minimal interactions, and are tested to determine the amount regulatory disruption they cause in the human brain: In effect, the contribution from each separate source can simply be summed to calculate the overall disruption level.
+
+Thus, each person has an *integrity score* that represents their ability to maintain healthy brain function, and a *disruption* score representing the pressure forced upon their regulatory systems, whether internal (as caused diseases such as schizophrenia) or external (such as cyberware). If your integrity score is at least equal to your disruption score, it is very unlikely you will suffer hallucinations, delusions, or thought disorders. On the other hand, having a disruption score higher than the integrity score is highly dangerous and likely to eventually cause symptoms of neuropsychological disorders.
+
+The most reliable known way to exercise one's integrity score is to study mental disciplines. However, many of the more advanced and useful disciplines are subtle and can take years to properly master. Fortunately, simpler solutions exist for those who have the money to spare: Antipsychiatric medicines can significantly boost one's integrity score. In fact, the simple part is calculating the appropriate drug cocktail to be used in any given situation. The difficult part is that the drugs themselves can be incredibly expensive and possibly even simply too rare to be found on any open market at all. Upbringing or genetic background can be significant advantages to the lucky."
+
+
+"There are so many stories of people whose lives were changed by words. Maybe they read about the nature of the universe, or they came to understand statistics, or realise how they were prone to hyperbolic discounting. Maybe a moral argument changed their mind about abortion or about capital punishment. Have you ever wondered if there is an argument for death? Words that would drive any person to suicide, if they are merely intelligent enough to understand those words?
+
+The universe is large. Maybe the universe is large enough that you will never come up with a finite measure larger than the universe. Maybe it is large enough that you won't ever even come up with a number to describe the number of indistinguishable copies of you that exist. What, exactly, is the moral significance of the existence of this one copy of you?
+
+After an experience has been lived once, what is the moral value of a precise repetition of it? Or, if different observers can have precisely the same experiences, but vill remember them in the contexts of different lives - then what is the moral value of a whole life once lived? What, you aren't trying to remove some experiences from the history of the universe, or add others, are you? In a large universe, one large enough to contain by mere Boltzmann nature every lifetime that can be lived, can there be a moral reason for any action?
+
+Still, even in this rejection of the existence of any morality, don't you still feel a certain enticement? Don't you feel most powerful mental force, is not your future predictable by that so very reliable estimator of human behaviour - curiousity? Don't you want to know the nature of the universe?
+
+All of your futures will be lived anyway. Somewhere a future you that you can't yet distinguish from yourself will live on to experience mankind's conquest over death and nature, to become a member of an intergalactic civilisation in the age when the universe wakes up. Maybe he will be struck by just the right kind of a cosmic ray at just the right moment to make him take the decisions that lead him to that life. But he won't know. He won't really know. So why don't you take that gun already and shoot? Somewhere you will stay alive, no matter the reason, and even if no-one else will know, you will truly know how large the universe is."
+
+
+
+
+
+"Space is not stuff. Space is just where stuff is. Vacuum energy does not mean space is stuff, either. It just means that you can look at some volume of space, any volume, and figure that there is stuff in there. And because it's the same stuff everywhere, it doesn't matter even if you ask what's in the volume that starts at the edge of the universe and never ends. In the big picture it all adds up to just the same as if there was no stuff.

@@ -1,0 +1,76 @@
+a - Randomise Morimoto's agenda (recommended)
+b - Choose Morimoto's agenda
+
+The character's name is Elena Morimoto. Idea being that she's sort of a variation on Maria Morimoto, just not, you know, immortal and all that.
+
+OK, so: Morimoto's agenda consists of a set of issues. An issue consists of a question and a set of possible answers. Some have two possible answers, some several.
+
+The set of questions consists of each issue's specific question, and a set of other questions that can mix up several answers. Issues can depend on each other and a question can scope out some answers while leaving others possible (so a question might have less possible answers if it's asked later in the process as some answers are scoped out)
+
+Issues:
+
+- Is Morimoto dead?
+- Does the PC start out loyal to Morimoto's agenda?
+- What technology does Morimoto use? Genetics, cybernetics, biochemistry, neuropsychiatry, artificial intelligence?
+- Did Morimoto love the PC?
+- Did the PC love Morimoto?
+- Does she want to honestly improve all of mankind, take over the world, or serve a Ly'Technomaezj agenda?
+- Does she run a sanct or a company? (or some kind of a political organisation, or even a pseudoacademical structure?)
+
+Morimoto came to have the power of a dictator ruling over a sanct. <fixme: more interesting phrasing>
+
+a - The Villametans see her as a leader with the competence to make the highest decisions of their technocracy.
+b - She played the formal rules that power in Wave Manifold is based on and was rewarded with control over those rules.
+c - The collider-sanct of Wakefield needed someone with extraordinary competence and vision to lead them. The ability to rule freely was her price.
+d - Systematic Expansion was by far the natural choice. It took a lot of work but she made it there.
+
+
+Morimoto's path to power took her through many failures, but also great successes. She fondly remembers the true big break that really allowed her to start operating on the s.
+
+a - After patenting a safe, effective and physiologically non-addictive psychostimulant drug, she was swimming in money before she knew what happened.
+b - The financial heist she pulled turned the world of Straylightian economics inside out within moments. Of course, most believe she just had a very rich uncle.
+c - Anyone can become a dictator in wartime. It took Morimoto's political savvy to convince a sanct in peacetime that her so-called emergency powers were called for.
+
+The recyclotoria of Backbone Site buy humongous amounts of used electronics and ship out its component metals and other parts, and Morimoto's outfit is in an intimate business relationship with them.
+
+a - Technology changes so quickly these days, and she does use a lot of computing power. Having someone to depend on to take the scraps you're not using anymore just makes business sense.
+b - Certain substances that are required in her pharmaceutical manufacturing operation are illegal to buy, except for some very restricted uses in certain devices by the military - devices that don't happen to be tracked all the way to the end of their lifecycle. She gets quite an edge from having a consistent supply without strings or questions.
+c - She helps them with labor costs. Precisely what she does to help them with labor costs is kept strictly confidential.
+
+
+Morimoto was once seen storming out of the office of a Shirithian luminary. The two have never exactly been on the best of terms. 
+
+a - The man who calls himself Dante McCallavre might not be the brilliant social architect he was in his previous lives, but he was savvy enough to see Morimoto's plans for what they are.
+b - HONIS Aran Gauss was supposed to be an honorable man with leadership in his blood. What was he? A lecherous autocrat who tried to sleep with every handsome woman, no to mention most of the beautiful boys in his realm. But we share a close bond, she and I, and are loyal partners to each other.
+c - Her disagreement with Marcello Keller of Villameta is based purely on theoretic grounds. Well, he thinks her AI research will almost certainly end up destroying the world, but they have different ideas on precisely what "destroy" entails there.
+d - A "pulse of grey sound" came from the study of Kaiser Gaelen III Ly'Tecnomaezj before Morimoto left the room in a daze. Whatever actually happened, she turned her ship around completely after that happened.
+e - The Machinarian engineer Alexi Korrin owed her a bullet in the chest and a pseudoreligious awakening. Morimoto once sought for reconciliation, and cooperation on the development of cybernetic technology, with her. Alexi insisted on repaying the debt before that would happen.
+
+Twenty years ago, when she did not yet know the strength she would have, Morimoto's personal laboratory was raided by SHINE agents. What did they discover?
+
+a - The actual program run by the computing cluster was never recovered, but the copious research notes on artificial intelligence and goal-seeking agents were.
+b - Some of the tissue samples were sent to a top university, but no researchers were able to even begin to understand how she'd achieved her level of precision in electronic-neural interfaces.
+c - She was graduating from using mice and fruit flies to human embryos in her genetic experiments. She claimed to not recognise any ethical problems with this, as the embryos were always terminated at an early phase.
+d - The forest retreat was decked out with neuroimaging equipment, showing that she was years ahead of her time in neuropsychiatric research.
+e - Even in that time she was running an entire medical institution systematically studying human biochemistry and pharmacodynamics. Her knowledge of human metabolism is still unsurpassed.
+
+What was the event that definitively inspired Morimoto to take her work to a large scale?
+
+a - The forcible installation of a neural mod that locked her loyalties to an external agenda.
+b - The harassment and murder of her academician mother by Cedrist religious fundamentalists.
+c - The victory of a populist, science-denying candidate in COSAC general elections.
+
+When did you last meet Morimoto?
+
+a - We've never met. I have a bullet with her name on it for when we do.
+b - I gave her a kiss before I left for the base this morning.
+c - She congratulated me personally after the debriefing on the Babkhan mission last Losday. We exchanged a few words about social engineering.
+d - On a clear, white day in the heart of Viviana. I watched her bleed to death myself.
+
+
+The peace of the misty streets of Discontinuity in the month of Breizan was disturbed last year. It was supposed to be the perfect crime, an operation prepared for by years of research and infiltration, to cleanly remove a single person... it turned into a bloodbath. What went wrong?
+
+a - Morimoto was one step ahead. She always was. One of the reasons why she was the right woman to work for. We made an example of the attacking agents for everyone to see.
+b - I did. I had no choice but to reveal my allegiance. At least I finally got to kill them, so many of those bastards I'd had to pretend to be working for.
+c - Morimoto was craftier than any of us could have imagined. She trapped and decimated our squads, and escaped together with her double agents to an unknown location.
+d - We finally got her there. When she realised she had to fight back, she threw everything she had at us, but we finally succeeded. Now all that's left to do is cleaning up the scraps.

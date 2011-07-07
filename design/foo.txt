@@ -1,0 +1,42 @@
+AN INTRODUCTION TO STRAYLIGHT
+
+Begin by taking half a million engineers. They don't all have to have engineering degrees, but they all have to have a technically-oriented if not consistently rational mindset, and an urge to optimise every aspect of their lives. Age them from a few to several dozen years in casks made of a thousands-of-years-old empire's rigidity and antiquated bureaucracy. String several thousand through the specific caprices of a supremely powerful nobility and Kaisership to make the taste more savoury. A few chunky opinion leaders speaking out for alternative governments are a great help, too.
+
+Now that your stew of mistrust and rebelliousness is cooked, throw the rule that you can't just go out and found a new self-governing community out of the window: Start building sancts, sometimes also known as seasteads - floating cities, first in structures made of drilling platforms and ancient ships across coasts and in secluded bays, but then in true cities, of tens or hundreds of thousands of people, self-sufficiently floating in the open ocean. Mix immigrants liberally from all across the empire, from the past-obsessed Melangians to the K'Tzunians of the great wheat fields, from the anarchistic Yardistani to the strange rationalists of Hyperborea - all in the same confined spaces, sharing little but the fact that they have the money to pay for the fare to move in. Or, at least used to.
+
+The sancts are places of churning change, of competition rather than community, and optimisation rather than stability. Each community is pulled in a dozen different directions by conflicting interests, often with only the most minimal of local governments and regulations to put any limits on the actions of individuals. 
+
+BUSINESS AND FINANCE
+
+- GAH TOO MANY THINGS TO SAY AND I DON'T KNOW WHERE TO START
+
+- money by and large exists in Ripple
+- actually a variant thereof: provides mechanisms for assessing not only credit but also credibility (same sort of thing as scientific accountability and cryptographic webs of trust: information comes with a literal trust metric based on the graph of who individuals say they trust; note echo chamber implications)
+- friendship = credit in Ripple (sort of like the "love = a diamond ring" thing, maybe even make it a result of a specific advertising campaign)
+- (but remember that the whole thing is run just as anarchistically as the rest and Ripple hosts themselves can be open to abuse; and that the only reason the whole thing even has a common name is that it is based on a single protocol, so, not unlike the Internet)
+- thus, a few funny things:
+ - complicated budgets (no such thing as an absolute amount of money, just credit with specific people and organisations)
+ - low transaction costs (search and information costs down due to the general wiredness, network-savviness and AI-agent-usingness of the people, bargaining costs again due to AI agents, and policing and enforcement costs due to the credibility mechanic)
+- and, from low transaction costs: Small business organisations, though quite a few contract lawyers (rarely working for individuals though), and very small government with Coasian bargaining used to handle economic allocation even in the presence of externalities, most property in fact technically owned by individuals though few people have a lot of property that they don't have some kind of a usage or ownership sharing contract on with someone
+ - i.e. no megacorps here, rather, everything tends to be owned by a pretty random set of people
+
+The traditional company and corporation are fairly rare breeds in Straylight. 
+
+Instead, business organization is based on a dizzying amount of different variations on limited companies, partnerships, even non-profits in those few sancts that have both a traditional system of taxation and a tax exemption for non-profits. 
+
+
+
+CHARACTER ADVANCEMENT
+
+Straylight: Discontinuity is pretty much the usual sort of adolescent power fantasy that all roguelike players are used to. Your character doesn't grow from a person who isn't able to do the right thing because of some flaw of personality, into a person who understands his strengths and flaws and has the wisdom and strength to do the right thing with all of the resources he has. No, your character grows from a mildly superhuman badass into a profoundly superhuman badass. 
+
+At least a few of the general roguelike tropes are avoided, though. For one, you don't become formidable by killing people. You become formidable by learning things and using the tools of modern technology to extend your reach. You don't even kill people to loot their money and weapons. You could, however, end up having to kill people when things go sour and you have no other choice, or when you really need to get in some area and the only way is through the guards. As usual in roguelikes, death is cheap and you won't be charged for murder, and the game doesn't try to make you feel guilty about slaughtering men and women who really weren't hoping that the last moments of their lives would be this exciting.
+
+There is no experience system and no real class system beyond the character archetypes. There are no character races, you can only be human. Skill gain is not tied to what you do on missions - the missions are only a tiny part of your character's life, the part where all the training they do elsewhere is put to work. 
+
+
+
+nuseibeh easterbrook 2000 (Downloads/sotar.re.pdf)
+
+
+Maxyd, Morimoto, Harkscane

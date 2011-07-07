@@ -1,0 +1,66 @@
+
+
+List of abilities to possibly implement:
+
+- Wallrun: Bump a wall diagonally, then confirm by moving along the wall that you want to wallrun; bypasses some number of tiles; enemies on tiles you pass get to swipe at you
+- Gravity-defying: Enemies don't get to attack you on wallruns
+- Walljump: Either after bumping a wall or comboing from a wallrun, jump and get a free melee attack at a target (essentially you're coming in faster because of the direction of the surface you're jumping off of / cool factor). The area you can jump to is restricted to a thin cone off the normal of the wall (if walljumping diagonally off a corner, you get two jump cones; if jumping off a wallrun, the cone is tilted forward).
+- Knockdown jump: Jump after bumping an enemy in melee. Restricted jump cone as in walljumps. Gets a free knockdown as you jump off the target. (a jump like this is somewhat more clumsy so you get two jump radii: Try to jump beyond the knockdown jump radius and you just make a normal jump)
+- Melee acrobat: Jump distance and direction in knockdown jumps are unrestricted, and if you jump at a target in a knockdown jump you get a free attack at them just as if you were walljumping at them
+- Flying leap: Double jump distance. (if I end up adding a fatigue for jumping, this might also cut jumping fatigue proportionately, i.e. such that if you're jumping to distance X, fatigue will be half of what it would have been if you'd jumped to that distance without flying leap)
+- Cartwheel grab: Picking up things from the ground is a free action.
+- Clean takedown? (something to do with enemies not managing to alarm others when you hit them in melee)
+- Backstab: Move around a target before hitting it in melee for extra damage, guaranteed clean takedown. (you get a message when the next attack will be a backstab)
+- Backstep: Can step away after attacking an enemy with no penalty (or? Needs to come up with a penalty first I suppose...)
+
+- Skeletal reinforcement: (something?)
+- Clottocytes: +maxHP
+- Respirocytes: Double fatigue replenishment speed.
+- Cyberspur: Melee combat damage bonus? (ach, so Shadowrun...)
+
+Simulation/information chain:
+
+- Floorplan access: Start with each area's floors and walls fully discovered
+- Guard recon: Knowledge of the building security's schedules and conventions allows you to hit when the guards are at half numerical strength (though only for a limited number of turns / until the alarm is rung)
+- Combat simulator: Can run a simulation of the infiltration, although only with knowledge of the guards and the floorplan
+
+Mental discipline chain:
+
+- Diagnostic discipline: No boon cost for two neural enhancements
+- Definite action: No boon cost for a martial art
+- Mu desuppression: Never loses consciousness before death
+- Combat sense: Prevent or ask for permission on (simple?) moves that would cause you (significant?) damage before your next turn
+
+Cyberbrain options:
+
+- Cybercerebellum
+- Bullet trace: See where shots are coming from
+
+- Transient imaging camera?
+
+
+Character advancement is going to be very similar to DoomRL, actually: A system of enhancements (discrete perks that are gained predictably and that the game will never force you to miss) and equipment (stuff to manage in your inventory that has somewhat more gradated usefulness and that's gained randomly). 
+
+One difference though. Leveling works in a slightly unusual way; instead of working toward the next level, where you will pick a new ability and immediately gain it, you will pick an ability and then work toward it, and when you get it you get to pick another ability and work toward that, etc.. The purpose of this is to tie character advancement to the plot: You tell the game what you want, and the game figures out a story of how you get it.
+
+And another one: The game will be mission-based, and levels (enhancements) will be gained at the end of a mission. Missions will have unexpected complications, but any unexpected complication will also come with boons.
+
+Oh, and another thing. See, all of this... isn't really conducive to proper roguelike gameplay, not in the era of branching dungeons where "if you can't deal with it now, leave and come back later" is a widely accepted maxim. How about... a larger gameworld where you have multiple concurrent missions (and perhaps multiple concurrent parts of a single mission)? Would do wonders for the whole persistence thing too... 
+
+
+
+
+
+An interesting quote from Roguetemple: "When exploring in a roguelike and you come across a choice in path, there is nothing to distinguish the choice. You have no prior knowledge to help make a decision. Both paths offer the same random occurances. Where is the fun in the decision when the choice in arbritrary? Exploration in most roguelikes *feel* like the choice for exploration given in glorg." Having symmetries in the large-scale map structure will... not, by itself, likely make exploration feel more meaningful.
+
+Thoughts on gameplay balance:
+
+- melee tends to stun enemies easily and allow for clean takedowns; problem being getting into melee range and dealing with other enemies
+ - player can improve situation by picking perks that let them get to the enemy faster, herding, a more dynamic playstyle involving stunning several enemies before taking them down
+ - reliably merely permastuns enemies (permastun = death except better for score)
+- ranged causes temporary stuns, more fatal damage
+ - missions with a "no killing" preference (an extra boon if you don't kill anyone?)
+ - must bring guns and ammo, which make life complicated
+  - ammunition choice... could be put in, but the problem is, it's not a very interesting choice; rather, just put in weapon choice, with some special weapons to unlock (gyrojet pistol, smart gyrojet pistol, etc.)
+ - but most importantly: Ranged is *not* *reliable*: If you shoot someone in the stomach at range... they might die later, but for now, they're going to be shooting back (and now they'll be fighting for their life rather than just trying to subdue an intruder). (note the difference: *You* are a fearless transhuman badass so *you* just get hitpoints; *they* are people who got a week of training and three visits at the shooting range so *they* get stunned, shaky, afraid, etc.)
+
