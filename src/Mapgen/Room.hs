@@ -30,6 +30,7 @@ import BasicTypes
 import Tile
 import Object
 import Util (cfoldr, uniformRandomPick, justUniformRandomPick, matching, gmapDouble)
+import DataFile (readDataFile)
 
 import Text.Printf (printf)
 import Debug.Trace (trace)
@@ -197,8 +198,8 @@ indexLayoutsBySizeInto =
     cfoldr (\l -> Map.insertWith (flip (++)) ((Coord 1 1 ^+^) $ snd $ bounds $ flMap l) [l])
 
 
-indexLayouts :: [FurnitureCharacters] -> [StoredFurnitureLayout] -> Map String (Map Coord Layouts)
-indexLayouts characters layouts = 
+indexLayouts :: [FurnitureCharacters] -> [StoredFurnitureLayout] -> Map String FurniturePrototype -> Map String (Map Coord Layouts)
+indexLayouts characters layouts prototypes = 
     foldr (\(k, l) -> 
                Map.alter (\x -> Just $
                           case x of
@@ -206,7 +207,7 @@ indexLayouts characters layouts =
                             Just e -> indexLayoutsBySizeInto [l] e)
                k)
     Map.empty $ 
-    concatMap (\sl -> let rl = normalizeLayoutRotation $ readFurnitureLayout characters sl in
+    concatMap (\sl -> let rl = normalizeLayoutRotation $ readFurnitureLayout characters sl prototypes in
                       [(k, rl) | k <- layoutRooms sl]) $
     layouts
 
@@ -237,10 +238,11 @@ renderWorld
   -> m ([(Object, Coord)], a Coord Tile)
 
 renderWorld g a compounds = do
-  layouts <- liftIO ((read :: String -> [StoredFurnitureLayout]) `fmap` readFile "FurnitureLayouts")
-  characters <- liftIO ((read :: String -> [FurnitureCharacters]) `fmap` readFile "FurnitureCharacters")
-  rooms <- liftIO ((read :: String -> [RoomType]) `fmap` readFile "Rooms")
-  let li = indexLayouts characters layouts
+  layouts <- liftIO ((read :: String -> [StoredFurnitureLayout]) `fmap` readDataFile "FurnitureLayouts")
+  characters <- liftIO ((read :: String -> [FurnitureCharacters]) `fmap` readDataFile "FurnitureCharacters")
+  rooms <- liftIO ((read :: String -> [RoomType]) `fmap` readDataFile "Rooms")
+  prototypes <- liftIO ((read :: String -> [FurniturePrototype]) `fmap` readDataFile "FurniturePrototypes")
+  let li = indexLayouts characters layouts $ indexPrototypes prototypes
   liftIO $ writeFile "li" (show li)
 --      roomTYpes = 
   (doorsMap, walls) <- renderWalls g

@@ -1,9 +1,6 @@
 It begins, the todoification!
 
-- Test SaveLoad2.hs, it might well be broken so fix it if it is
-- Put in some furniture object types, at least tables and chairs
 - Actually introduce some furniture generators
-- Separate different types of furniture objects
 - Centralise keybinding management (no need to make it dynamic yet though)
 - Add blood splatters and figure out how to pick a rendering colour
 - Extend menu() with support for categories, maybe some visual customization
@@ -27,6 +24,7 @@ It begins, the todoification!
 - restrict calm-state pathfinding to not going outside the home compound at all? (it won't choose a target outside the compound, but it can pathfind through its outside if that's the shortest path - it's currently even possible to confuse the AI into going into a different compound by bumping into it when it's outside its home compound)
 - implement calm-state AI in general
 - rewrite corridorishness in Room.hs:connectCompound, figure out if it does anything
+- better comment stripping in DataFile
 
 Done:
 
@@ -45,3 +43,5 @@ Done:
 * Make addOutside break up big compounds in a more natural manner
 * sizedRectToBoundsRect and its twin brother are starting to proliferate in Mapgen/. Slaughter the inconsistent-with-Ix ilk of SizedRect, all of it!
 * Add the "noBlockedOpenings" condition (must have no doors "behind" a non-walkable tile) in Furniture.hs:layoutAllowed
+* Test SaveLoad2.hs, it might well be broken so fix it if it is
+* Put in some furniture object types, at least tables and chairs

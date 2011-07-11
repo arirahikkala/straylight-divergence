@@ -21,7 +21,7 @@ import Data.Data
 import Data.AdditiveGroup ((^+^), (^-^))
 import Data.Array.IArray -- todo: Import qualified
 import Data.Array.Unboxed
-import Data.List (findIndex, mapAccumL, intercalate, delete, find)
+import Data.List (findIndex, mapAccumL, intercalate, delete, find, foldl')
 import Data.Maybe (mapMaybe, fromMaybe)
 import Control.Exception (throw)
 import Data.Set (Set)
@@ -313,14 +313,16 @@ data ActivityPoint = ActivityPoint {
     , apLocationInLayout :: Coord
 } deriving (Data, Typeable, Show, Read, Eq)
 
-readFurnitureLayout :: [FurnitureCharacters] -> StoredFurnitureLayout -> FurnitureLayout
-readFurnitureLayout characters (StoredFurnitureLayout c m w a r) =
+readFurnitureLayout :: [FurnitureCharacters] -> StoredFurnitureLayout -> Map String FurniturePrototype -> FurnitureLayout
+readFurnitureLayout characters (StoredFurnitureLayout c m w a r) prototypes =
     let arr = lists2dToArray m 
         cdefs = case find ((==c).charactersName) characters of
                   Nothing -> throw $ DataFormatException ("couldn't find furniture type " ++ c)
                   Just x -> x in
-    FurnitureLayout (amap (instantiateCharacter cdefs) (lists2dToArray m)) w a
+    FurnitureLayout (amap (instantiateCharacter cdefs prototypes) (lists2dToArray m)) w a
 
+indexPrototypes :: [FurniturePrototype] -> Map String FurniturePrototype
+indexPrototypes = foldl' (\m e -> Map.insert (furniturePrototypeName e) e m) Map.empty
 
 data FurnitureLayout = FurnitureLayout {
       flMap :: Array Coord (Maybe Object, Bool)

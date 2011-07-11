@@ -1,4 +1,4 @@
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE NamedFieldPuns #-}
 module RenderObject where
 
 import CommonTypes
@@ -16,6 +16,8 @@ renderObject s =
       (DebugChar {char_ = c}) -> return $ StyledChar (Style False False Grey Black) c
       (Rubble { rubbleMaterial_ = m}) ->
              return $ StyledChar (Style False False (rubbleColour s) Black) $ (rubbleCharacters !! (mod (fromEnum $ ref s) numRubbleCharacters))
+      (Furniture { furniturePrototype_ = (FurniturePrototype { furniturePrototypeGlyph })}) ->
+          return furniturePrototypeGlyph
 
 rubbleColour = const $ Yellow
 

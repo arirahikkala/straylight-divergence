@@ -4,7 +4,8 @@ module Mapgen.FurnitureCharacters (FurnitureCharacters (..), CharacterDefinition
 import Data.List (find)
 import Data.Typeable
 import Data.Data
-
+import Data.Map (Map)
+import qualified Data.Map as Map
 import Object
 
 data FurnitureCharacters = FurnitureCharacters {
@@ -19,10 +20,10 @@ data CharacterDefinition = CharacterDefinition {
 
 
 -- will be a scary function, almost certainly off in its own file, and with a couple new arguments, once we're done with it
-instantiateCharacter :: FurnitureCharacters -> Char -> (Maybe Object, Bool)
-instantiateCharacter (FurnitureCharacters {charactersDefinitions = cdefs }) c =
+instantiateCharacter :: FurnitureCharacters -> Map String FurniturePrototype -> Char -> (Maybe Object, Bool)
+instantiateCharacter (FurnitureCharacters {charactersDefinitions = cdefs }) prototypes c =
     case find ((==c) . cCharacter) cdefs of
       Nothing -> (Nothing, True)
-      Just cdef -> if cMeans cdef == "floor" 
-                   then (Nothing, True {-cWalkable cdef-})
-                   else (Just $ debugChar c, True {-cWalkable cdef-})
+      Just cdef -> case Map.lookup (cMeans cdef) prototypes of
+                     Nothing -> (Nothing, True)
+                     Just prot -> (Just $ Furniture prot, furniturePrototypeWalkable prot)

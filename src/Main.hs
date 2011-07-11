@@ -23,10 +23,13 @@ import Tile
 import qualified LocationMap as Loc
 
 import SaveLoad
+import DataFile
+
 import Interface
 
 import Mapgen.Campus
 import Mapgen.CampusArgs
+import Mapgen.Furniture (indexPrototypes)
 
 import UI.HSCurses.Curses hiding (echo, endWin, stdScr, noDelay)
 import CursesWrap
@@ -115,11 +118,17 @@ main = playGame
 
 defaultGameConfig = GameConfig [] (Map.empty)
 
+configureGame :: IO GameConfig
+configureGame = 
+    do prototypes <- liftIO ((read :: String -> [FurniturePrototype]) `fmap` readDataFile "FurniturePrototypes")
+       return $ (defaultGameConfig { furniturePrototypes_ = indexPrototypes prototypes } )
+
 playGame = do
   randGen <- liftIO getStdGen
   args <- getArgs
   case args of
-    [] -> runGameT (prepMain True) randGen defaultGameState defaultGameConfig
+    [] -> do config <- configureGame
+             runGameT (prepMain True) randGen defaultGameState config
     (x:_) -> do saveContent <- readFile x
                 gameState <- runWithDefaultConfig ((deserialize :: StoredState -> Reader GameConfig GameState) $ read saveContent)
                 runGameT (prepMain False) randGen gameState defaultGameConfig
@@ -127,4 +136,6 @@ playGame = do
 
 -- | Load a game config and run a GameConfig action with it
 runWithDefaultConfig :: Reader GameConfig a -> IO a
-runWithDefaultConfig = return . flip runReader defaultGameConfig 
+runWithDefaultConfig a = 
+    do config <- configureGame
+       return $ runReader a config 
