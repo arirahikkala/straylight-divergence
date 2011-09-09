@@ -198,9 +198,12 @@ data Style = Style {
     , brightBg :: Bool
     , fgColor :: ColorName
     , bgColor :: ColorName
-} deriving (Show, Read, Data, Typeable)
+} deriving (Show, Read, Data, Typeable, Eq)
 
 data StyledChar = StyledChar {
       style :: Style
     , c :: Char 
-    } deriving (Show, Read, Data, Typeable)
+    } | StyleAnimatedChar {
+      styles :: [Style]
+    , c :: Char
+} deriving (Show, Read, Data, Typeable, Eq)

@@ -11,9 +11,9 @@
    layoutRooms = ["officeGeneric"]},
  StoredFurnitureLayout {
    layoutCharacters = "office", 
-   layoutMap = ["| |",
-                " | ",
-                "| |"],
+   layoutMap = ["s s",
+                " s ",
+                "s s"],
    layoutWallConstraints = (OpenSpace, OpenSpace, OpenSpace, OpenSpace), 
    layoutActivityPoints = [], 
    layoutRooms = ["officeGeneric"]},
@@ -22,5 +22,12 @@
    layoutMap = ["c ",
                 "c "],
    layoutWallConstraints = (NoConstraint, NoConstraint, NoConstraint, JustPlainWall),
+   layoutActivityPoints = [],
+   layoutRooms = ["officeGeneric"]},
+ StoredFurnitureLayout {
+   layoutCharacters = "office",
+   layoutMap = ["ss",
+                "sf"],
+   layoutWallConstraints = (AnyWall, OpenSpace, OpenSpace, AnyWall),
    layoutActivityPoints = [],
    layoutRooms = ["officeGeneric"]}]

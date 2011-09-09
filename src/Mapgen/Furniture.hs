@@ -21,8 +21,8 @@ import Data.Data
 import Data.AdditiveGroup ((^+^), (^-^))
 import Data.Array.IArray -- todo: Import qualified
 import Data.Array.Unboxed
-import Data.List (findIndex, mapAccumL, intercalate, delete, find, foldl')
-import Data.Maybe (mapMaybe, fromMaybe)
+import Data.List (findIndex, mapAccumL, intercalate, delete, find, foldl', nub)
+import Data.Maybe (mapMaybe, fromMaybe, maybeToList)
 import Control.Exception (throw)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -102,6 +102,19 @@ normalizeSizeRotation c@(Coord x y)
     | x < y = Coord y x
     | otherwise = c
 
+{-
+  New plan for decorateRect/layoutAllowed:
+  - separate functions using level coordinates vs. room coordinates vs. layout coordinates (or use newtypes?)
+  - turn layoutAllowed's constraint predicates into top-level functions
+  - in fact, since rects can be filled by smaller layouts now, decorateRect will probably need to find the correct room coordinates to pass to layoutAllowed
+  - come up with a way to structure things so that they're testable in general
+-}
+
+elemsLessThan :: Ord k => k -> Map.Map k a -> [a]
+elemsLessThan k m = 
+    case Map.splitLookup k m of
+      (m, r, _) -> Map.elems m ++ (maybeToList r)
+
 decorateRect :: (Monad m, MonadRandom m, MonadIO m, Functor m, IArray a Tile) =>
                 Map Coord Layouts
              -> a Coord Tile
@@ -110,14 +123,67 @@ decorateRect :: (Monad m, MonadRandom m, MonadIO m, Functor m, IArray a Tile) =>
              -> m [(Object, Coord)]
 decorateRect layouts a room@(upLeft, _) openings =
     do let allowed = filter (layoutAllowed a room openings)
-                     $ concatMap layoutRotations
-                     $ Map.findWithDefault [] (normalizeSizeRotation (snd room ^-^ fst room))
+                     $ concat $ map nub $ map layoutRotations
+                     $ concat $ elemsLessThan (normalizeSizeRotation (snd room ^-^ fst room))
                      $ layouts
+       liftIO $ appendFile "rects" (show room ++ ", " ++ show (length allowed) ++ "\n")                     
        pick <- uniformRandomPick $ allowed
        case pick of
          Nothing -> return []
          Just (x, _) ->
              return . map swap . justAssocs . map ((^+^ upLeft) *** fst) . assocs . flMap $ x
+
+layoutAllowed :: IArray a Tile => 
+                 a Coord Tile
+              -> BoundsRect
+              -> [Coord]
+              -> FurnitureLayout
+              -> Bool
+--layoutAllowed a cs openings l | trace ("cs: " ++ show cs) False = undefined
+layoutAllowed a cs openings l = 
+    let ws = wallEdges cs
+        toOrigin = (^-^ (fst $ cs))
+        walkability :: UArray Coord Bool
+--        walkability = amap snd $ flMap l
+        walkability = array (bounds (flMap l)) $ map (second snd) $ assocs $ flMap l
+        doorSpaces = mapMaybe (roomDoorSpaceTile cs) openings
+        directionalSpaces = 
+            map ((mapMaybe (roomDoorSpaceTile cs)) .
+                 (filter (not . flip elem openings)) .
+                 (filter (not . maybe False tileBlocksMovement . (a!/)))) $ ws
+        checkEW = null (directionalSpaces !! 0) &&
+                  null (directionalSpaces !! 2) &&
+                  not (null (directionalSpaces !! 1)) &&
+                  not (null (directionalSpaces !! 3))
+        checkNS = null (directionalSpaces !! 1) &&
+                  null (directionalSpaces !! 3) &&
+                  not (null (directionalSpaces !! 0)) &&
+                  not (null (directionalSpaces !! 2))
+        ew | not checkEW = True
+           | otherwise = any (not . null) $ [astar walkability (toOrigin from) (toOrigin to) | from <- directionalSpaces !! 1, to <- directionalSpaces !! 3]
+        ns | not checkNS = True
+           | otherwise = any (not . null) $ [astar walkability (toOrigin from) (toOrigin to) | from <- (directionalSpaces !! 0), to <- (directionalSpaces !! 2)]
+        doors = all (\door -> any (not . null) $ [astar walkability (toOrigin door) (toOrigin to) | to <- concat directionalSpaces]) doorSpaces
+        noBlockedOpenings = all (\d -> fromMaybe False (walkability !/ d)) $ doorSpaces
+        -- currently limited to checking rectangular layouts within rectangular rooms: One wall tile is enough to satisfy a wall constraint
+        -- (it *is* possible to have a situation where a big JustGlassWall constraint gets satisfied by one glass tile and lots of plain tiles, or vice versa
+        -- but it *isn't* possible with the current layouts structure that a wall constraint gets satisfied by open space)
+        checkWallConstraint c xs =
+            case c of
+              NoConstraint -> True
+              AnyWall -> any (maybe False tileBlocksMovement . (a!/)) xs
+              OpenSpace -> all (maybe False (not . tileBlocksMovement) . (a!/)) xs
+              JustGlassWall -> any (maybe False ((GlassWall ==) . tileWallType) . (a!/)) xs
+              JustPlainWall -> any (maybe False ((PlainWall ==) . tileWallType) . (a!/)) xs 
+        wallConstraint = 
+            case flWallConstraints l of
+              (north, east, south, west) -> 
+                  checkWallConstraint north (ws !! 0) &&
+                  checkWallConstraint east (ws !! 1) &&
+                  checkWallConstraint south (ws !! 2) &&
+                  checkWallConstraint west (ws !! 3) in
+--    trace (show (ew, ns, doors, wallConstraint, doorSpaces)) True &&
+    ew && ns && doors && wallConstraint && noBlockedOpenings
 
 justAssocs :: [(a, Maybe b)] -> [(a, b)]
 justAssocs [] = []
@@ -175,61 +241,6 @@ testLayout = FurnitureLayout
                               "# "])
              (JustPlainWall, OpenSpace, AnyWall, OpenSpace)
              []
-
-layoutAllowed :: IArray a Tile => 
-                 a Coord Tile
-              -> BoundsRect
-              -> [Coord]
-              -> FurnitureLayout
-              -> Bool
---layoutAllowed a cs openings l | trace ("cs: " ++ show cs) False = undefined
-layoutAllowed a cs openings l = 
-    let ws = wallEdges cs
-        toOrigin = (^-^ (fst $ cs))
-        walkability :: UArray Coord Bool
---        walkability = amap snd $ flMap l
-        walkability = array (bounds (flMap l)) $ map (second snd) $ assocs $ flMap l
-        doorSpaces = mapMaybe (roomDoorSpaceTile cs) openings
-        directionalSpaces = 
-            map ((mapMaybe (roomDoorSpaceTile cs)) .
-                 (filter (not . flip elem openings)) .
-                 (filter (not . maybe False tileBlocksMovement . (a!/)))) $ ws
-        checkEW = null (directionalSpaces !! 0) &&
-                  null (directionalSpaces !! 2) &&
-                  not (null (directionalSpaces !! 1)) &&
-                  not (null (directionalSpaces !! 3))
-        checkNS = null (directionalSpaces !! 1) &&
-                  null (directionalSpaces !! 3) &&
-                  not (null (directionalSpaces !! 0)) &&
-                  not (null (directionalSpaces !! 2))
-        ew | not checkEW = True
-           | otherwise = any (not . null) $ [astar walkability (toOrigin from) (toOrigin to) | from <- directionalSpaces !! 1, to <- directionalSpaces !! 3]
-        ns | not checkNS = True
-           | otherwise = any (not . null) $ [astar walkability (toOrigin from) (toOrigin to) | from <- (directionalSpaces !! 0), to <- (directionalSpaces !! 2)]
-        doors = all (\door -> any (not . null) $ [astar walkability (toOrigin door) (toOrigin to) | to <- concat directionalSpaces]) doorSpaces
-        noBlockedOpenings = all (\d -> fromMaybe False (walkability !/ d)) $ doorSpaces
-        -- currently limited to checking rectangular layouts within rectangular rooms: One wall tile is enough to satisfy a wall constraint
-        -- (it *is* possible to have a situation where a big JustGlassWall constraint gets satisfied by one glass tile and lots of plain tiles, or vice versa
-        -- but it *isn't* possible with the current layouts structure that a wall constraint gets satisfied by open space)
-        checkWallConstraint c xs =
-            case c of
-              NoConstraint -> True
-              AnyWall -> any (maybe False tileBlocksMovement . (a!/)) xs
-              OpenSpace -> all (maybe False (not . tileBlocksMovement) . (a!/)) xs
-              JustGlassWall -> any (maybe False ((GlassWall ==) . tileWallType) . (a!/)) xs
-              JustPlainWall -> any (maybe False ((PlainWall ==) . tileWallType) . (a!/)) xs 
-        wallConstraint = 
-            case flWallConstraints l of
-              (north, east, south, west) -> 
-                  checkWallConstraint north (ws !! 0) &&
-                  checkWallConstraint east (ws !! 1) &&
-                  checkWallConstraint south (ws !! 2) &&
-                  checkWallConstraint west (ws !! 3) in
---    trace (show (ew, ns, doors, wallConstraint, doorSpaces)) True &&
-    ew && ns && doors && wallConstraint && noBlockedOpenings
-
-
-
 
 coordContainedIn :: Coord -> BoundsRect -> Bool
 coordContainedIn (Coord x y) (Coord xb yb, Coord xe ye) =
@@ -328,7 +339,7 @@ data FurnitureLayout = FurnitureLayout {
       flMap :: Array Coord (Maybe Object, Bool)
     , flWallConstraints :: (WallConstraint, WallConstraint, WallConstraint, WallConstraint)
     , flActivityPoints :: [ActivityPoint]
-} deriving (Show)
+} deriving (Show, Eq)
 
 data StoredFurnitureLayout = StoredFurnitureLayout {
       layoutCharacters :: String

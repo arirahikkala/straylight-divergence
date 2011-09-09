@@ -151,7 +151,7 @@ data Level = Level {
     , flinged_ :: [Flinged] -- todo: this and possibly some other ones are really more generally interface-related data and should be made ephemeral
 } deriving (Show, Read)
 
-type Time = Int64
+type Time = Int
 
 
 $( deriveAccessors ''GameState )

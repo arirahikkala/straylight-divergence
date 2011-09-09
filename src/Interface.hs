@@ -22,7 +22,7 @@ import Util (none, whenM, unlessM, ifM, matching, unpick, pick, applyOnIndex,
              takeUntilLimit, maybeHead, lengthAtLeast, (!!/),
              takeWhileM, anyM)
 import Data.Ord (comparing)
-import Data.Maybe (mapMaybe, listToMaybe, catMaybes)
+import Data.Maybe (mapMaybe, listToMaybe, catMaybes, isNothing)
 
 import Control.Monad.Writer
 import Los
@@ -234,7 +234,6 @@ renderPos showEverything pos = do
                     sortBy (comparing (objectRenderingOrder . obj)) $ (flingedObjs ++ specObjs)
                 | otherwise = []
         in
--- todo: make the logic here more straightforward
           case objects of
             (x:_) -> renderObject x
             [] -> if (explored ! pos) && not (pos `Set.member` visible)
@@ -248,20 +247,23 @@ renderPosToScreen charPos
   c <- renderPos False
                  (fromMapScreen charPos pos)
   liftIO $ do uncurry move pos
-              renderStyledChar c
+  renderStyledChar c
   return ()
 
 renderMapPosToScreen pos = do
   charPos <- mapPosition playerCharRef
   c <- renderPos False pos
   let screenPos = onMapScreen (snd charPos) pos
-  when (inRange mapScreen screenPos) $
-       liftIO $ do uncurry move (onMapScreen (snd charPos) pos)
-                   renderStyledChar c
-                   return ()
+  when (inRange mapScreen screenPos) $ 
+       do liftIO $ uncurry move (onMapScreen (snd charPos) pos)
+          renderStyledChar c
+          return ()
 
 renderStyledChar (StyledChar style c) =
-    withStyle style $ addCh c
+    liftIO $ withStyle style $ addCh c
+renderStyledChar (StyleAnimatedChar styles c) = do
+    turn <- gsGlobal currentTurn_
+    liftIO $ withStyle (styles !! (turn `mod` length styles)) $ addCh c
 
 lookupTile a c 
     | bounds a `inRange` c = a ! c
@@ -534,7 +536,7 @@ bump c = do
     Just x -> attack playerCharRef (ref x) >> passTurn
     Nothing -> case find ((\o -> isDoor o && closed_ o) . obj) rsos of
                  Just (SpecificObject r o) -> touch r ((closed ^= False) $ o) >> passTurn
-                 Nothing -> tryWalkTo (SpecificObject playerCharRef o) (level, c) >> passTurn
+                 Nothing -> whenM (isNothing `fmap` tryWalkTo (SpecificObject playerCharRef o) (level, c)) passTurn
 
 attack ra rd = do
   when (ra == playerCharRef) passTurn

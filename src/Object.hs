@@ -35,7 +35,7 @@ data Object =
     DebugChar {
       char_ :: ! Char
     }
-    deriving (Show, Read, Data, Typeable)
+    deriving (Show, Read, Data, Typeable, Eq)
 
 data FurniturePrototype = FurniturePrototype {
       furniturePrototypeName :: String 
@@ -44,10 +44,10 @@ data FurniturePrototype = FurniturePrototype {
     , furniturePrototypeWeight :: Double
     , furniturePrototypeWalkable :: Bool
     , furniturePrototypeConcealment :: Double
-} deriving (Show, Read, Data, Typeable)
+} deriving (Show, Read, Data, Typeable, Eq)
 
-data RubbleMaterial = WoodRubble | BookRubble
-                      deriving (Show, Read, Data, Typeable)
+data RubbleMaterial = WoodRubble | BookRubble | StoneRubble
+                      deriving (Show, Read, Data, Typeable, Eq)
 
 --name (Door {}) = "door"
 --name (DebugChar {char_}) = "debug " ++ [char_]
@@ -60,7 +60,7 @@ buddy = Actor (AIState []) 10 10
 
 data AIState = AIState {
       movementPlan_ :: [Coord]
-} deriving (Show, Read, Data, Typeable)
+} deriving (Show, Read, Data, Typeable, Eq)
 
 $( deriveAccessors ''Object )
 $( deriveAccessors ''AIState )
@@ -89,6 +89,7 @@ objBlocksWalking o =
     case o of
       Actor {} -> True
       Door {closed_ = c} -> c
+      Furniture {furniturePrototype_ = FurniturePrototype { furniturePrototypeWalkable }} -> not furniturePrototypeWalkable
       _ -> False
 
 --renderObject (Rubble {rubbleMaterial_}) = 

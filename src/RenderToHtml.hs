@@ -41,6 +41,13 @@ renderCharToHtml (StyledChar (Style bright brightBg fgColor bgColor) c) =
     color brightBg bgColor ++
     ";\">" ++ [c] ++ "</td>"
 
+renderCharToHtml (StyleAnimatedChar ((Style bright brightBg fgColor bgColor):_) c) =
+    "<td style=\"color: #" ++
+    color bright fgColor ++
+    "; background-color: #" ++
+    color brightBg bgColor ++
+    ";\">" ++ [c] ++ "</td>"
+
 
 renderLevelToHtml level outputHandle = do
   (Coord bx by, Coord ex ey) <- bounds `fmap` gsLevel level world_
