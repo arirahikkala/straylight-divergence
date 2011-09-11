@@ -1,0 +1,3 @@
+[submodule "cbits/astar-jps"]
+	path = cbits/astar-jps
+	url = git@github.com:arirahikkala/astar-jps.git
