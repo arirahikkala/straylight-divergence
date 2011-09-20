@@ -6,6 +6,7 @@ import Data.List (group)
 
 type Bump = Coord
 
+bres :: Int -> Int -> [[(Int, Int)]]
 bres run rise
     | run  < 0   = (map . map) (\(x, y) -> (-x, y)) (bres (-run) rise)
     | rise < 0   = (map . map) (\(x, y) -> (x, -y)) (bres run  (-rise))
@@ -19,9 +20,20 @@ bres run rise
           where error' = error + rise
 
 allConnectingLines  (Coord x1 y1) (Coord x2 y2) = 
+    -- in some cases bres might return the same line several times; 
+    -- they are always successive members in the list, though, 
+    -- so we don't need nub
+    map head . group .
+    (map . map) (\(x, y) -> (Coord (x1 + x) (y1 + y))) $ (bres (x2-x1) (y2-y1))
+
+{-
+allConnectingLines  (Coord x1 y1) (Coord x2 y2) = 
+    -- in some cases bres might return the same line several times; 
+    -- they are always successive members in the list, though, 
+    -- so we don't need nub
     map head . group .
     (map . map) (\(x, y) -> Coord (x1 + x) (y1 + y)) $ (bres (x2-x1) (y2-y1))
-
+-}
 data Line = Line
     {-# UNPACK #-} !Coord
     {-# UNPACK #-} !Coord deriving (Eq, Ord)

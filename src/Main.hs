@@ -59,7 +59,6 @@ introduceObj (o, loc) =
 prepMain newGame = do
   mapOutput <- liftIO $ openFile "map.html" WriteMode
   when newGame $ do (w, doorsAndStuff, c) <- makeMap (CampusArgs 1 2 4 0.4 0.02) (Coord 0 0, Coord 50 50)
---                    liftIO $ threadDelay 1000000
                     introduceActor playerCharRef
                     mPlayerLevel (world ^= w)
                     mPlayerLevel (compounds ^= makeCompounds (bounds w) c)

@@ -20,7 +20,7 @@ import AStarFFI
 
 import Data.Accessor
 
-act r =
+act r = 
     do o <- dereferObj r
        pos <- mapPosition r
     -- todo: add a stay-still fallback for when there's nowhere to go
@@ -39,15 +39,14 @@ act r =
                         Just _ -> do touch r ((movementPlan <. ai ^= []) $ o)
                                      act r
 
-
-
 newMovementPlan (level, c) =
     do goal <- randomDistantTargetCoord level c
        w <- gsLevel level world_
        enterable <- mapM tileEnterable $ map (level, ) $ range $ bounds w
 
-       let plan = drop 1 $ astar (listArray (bounds w) enterable // [(c, True)]) c goal
-       return plan
+       case astar (listArray (bounds w) enterable // [(c, True)]) c goal of
+         Nothing -> return []
+         Just xs -> return xs
 
 -- Distant = not adjacent or same as the given coordinate
 -- also now restricted to the compound you're currently in!

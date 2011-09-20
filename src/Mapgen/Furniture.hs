@@ -22,7 +22,7 @@ import Data.AdditiveGroup ((^+^), (^-^))
 import Data.Array.IArray -- todo: Import qualified
 import Data.Array.Unboxed
 import Data.List (findIndex, mapAccumL, intercalate, delete, find, foldl', nub)
-import Data.Maybe (mapMaybe, fromMaybe, maybeToList)
+import Data.Maybe (mapMaybe, fromMaybe, maybeToList, isJust)
 import Control.Exception (throw)
 import Data.Set (Set)
 import qualified Data.Set as Set
@@ -160,10 +160,10 @@ layoutAllowed a cs openings l =
                   not (null (directionalSpaces !! 0)) &&
                   not (null (directionalSpaces !! 2))
         ew | not checkEW = True
-           | otherwise = any (not . null) $ [astar walkability (toOrigin from) (toOrigin to) | from <- directionalSpaces !! 1, to <- directionalSpaces !! 3]
+           | otherwise = any isJust [astar walkability (toOrigin from) (toOrigin to) | from <- directionalSpaces !! 1, to <- directionalSpaces !! 3]
         ns | not checkNS = True
-           | otherwise = any (not . null) $ [astar walkability (toOrigin from) (toOrigin to) | from <- (directionalSpaces !! 0), to <- (directionalSpaces !! 2)]
-        doors = all (\door -> any (not . null) $ [astar walkability (toOrigin door) (toOrigin to) | to <- concat directionalSpaces]) doorSpaces
+           | otherwise = any isJust $ [astar walkability (toOrigin from) (toOrigin to) | from <- (directionalSpaces !! 0), to <- (directionalSpaces !! 2)]
+        doors = all (\door -> any isJust $ [astar walkability (toOrigin door) (toOrigin to) | to <- concat directionalSpaces]) doorSpaces
         noBlockedOpenings = all (\d -> fromMaybe False (walkability !/ d)) $ doorSpaces
         -- currently limited to checking rectangular layouts within rectangular rooms: One wall tile is enough to satisfy a wall constraint
         -- (it *is* possible to have a situation where a big JustGlassWall constraint gets satisfied by one glass tile and lots of plain tiles, or vice versa

@@ -1,6 +1,6 @@
-Name: lol
+Name: straylight-divergence
 Version: 0.0
-Description: A roguelike of lol
+Description: Straylight: Divergence, a science fiction roguelike
 License: GPL
 License-file: COPYING
 Author: Ari Rahikkala
@@ -8,10 +8,10 @@ Maintainer: ari.rahikkala@gmail.com
 Build-Type: Simple
 Cabal-version: >= 1.2
 
-Executable lol
-  Hs-source-dirs: src
+Executable divergence
+  Hs-source-dirs: src yaml-with-class
   Main-is: Main.hs
-  C-sources: cbits/IndexPriorityQueue.c cbits/AStar.c
+  C-sources: cbits/astar-jps/IndexPriorityQueue.c cbits/astar-jps/AStar.c
   cc-options: -std=c99 -O2
   Ghc-options: -auto-all -rtsopts
   Build-Depends: base >= 3 && <5, data-accessor, data-accessor-template, random, mtl, hscurses, containers, array,  MonadRandom, fgl, vector-space, Graphalyze, process, PSQueue, QuickCheck >= 2 && <3, MaybeT, deepseq, derive, astar

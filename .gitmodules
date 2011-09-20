@@ -1,3 +1,6 @@
 [submodule "cbits/astar-jps"]
 	path = cbits/astar-jps
 	url = git@github.com:arirahikkala/astar-jps.git
+[submodule "yaml-with-class"]
+	path = yaml-with-class
+	url = git@github.com:arirahikkala/yaml-with-class.git

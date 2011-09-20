@@ -1,0 +1,6 @@
+*~
+*.hi
+*.o
+dist/*
+map.html
+emergencySave
