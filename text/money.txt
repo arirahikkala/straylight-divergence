@@ -1,0 +1,38 @@
+FRIENDSHIP IS MONEY
+
+How much is a friendship worth? Would you guarantee your best friend's debts? Give them money for free? Forgive them if they can't pay? Bail them out, give more than you had promised you ever would? What if it wasn't even their own irresponsibility that was a problem, but their trust in someone else?
+
+If you live in Straylight, you know the answers to those questions. You can put a number on just how much you trust each of your friends. You don't have any other choice, really. Everyone else does. It's not that someone you gave too much credit to would necessarily even choose to betray you. It's that if they were irresponsible too, they put you at risk, and when you are at risk, so are all your friends that trusted you. Time to pay up.
+
+Straylight threw off the shackles of the central banking system with little fanfare, over several decades quite recently. It was inevitable, really. The writing had been on the wall for a good while. The isolated and often highly specialised sancts lent themselves to a profusion of local currencies as the economic well-being of each required the ability for their currency to inflate and deflate with the changes of their trade balance. 
+
+Oceanic was a simple, open platform for something no more complex than recording relationships of monetary credit between people. By allowing credit to be converted into debt, and debt to be paid back so as to become credit again, it was possible to route payments through a web of credit between people. If anything, it was because of laziness and indecision that Oceanic ended up being formally adopted by several of the new sancts built in recent decades: Sancts needed to introduce currencies of their own, but they didn't need the expense of minting those currencies, so they simply bootstrapped economic systems based on lending between peers. It was the simplest thing to do.
+
+So Oceanic grew. It brought many social benefits through its ability to knit communities together: For perhaps the first time in history, communities really worked to save their members from falling into debt. After all, one person losing a lot of money meant that anyone who had earlier trusted them also could lose a lot of money with little chance of getting it back.
+
+Eventually, it changed the concept of friendship. Because, after all, who was a friend but someone who trusted you? And trust without credit was empty. There was, of course, no need to sacrifice money for friendships right now - only to sacrifice certainty. And at the same time - Straylightians, too, trusted but verified. Why would you trust someone, if they didn't allow you to verify they were worthy of your trust? 
+
+This is what money means in Straylight. Social capital is capital. Friendship is money.
+
+
+
+If anything, the adoption of the Oceanic system was a result of laziness and indecision. It was an open platform for the exchange of money, and that was all it was. Sancts were big enough to take care of themselves, but not big enough that they could go through the trouble of minting their own money or developing their own financial exchanges - so they tended to end up on the same system, where any person could grant a line of credit to any other. By constructing a network of lines of credit that could be turned into debt or paid back at any time, one person could make a payment to another without ever needing to involve a system of finance more complicated than lending between peers.
+
+So Oceanic grew. Friends lent to friends, and occasionally to enemies as well, as long as they knew exactly well how much they could trust them. And pretty soon, everyone was tangled up in a web where they were responsible for the debts of their friends, and those in turn were responsible for the debts of their friends, and so on. Certainly it brought social benefits, as Oceanic knit communities together: The good fortune of one meant anyone within a couple of hops in the graph of credit could feel reasonably safe for the time being. Similarly, one's debts and bad decisions were no longer their own business - they were now the business of all of their friends, and whoever wanted to keep their friends would want to be sure that they wou
+
+
+(note: All credit for the Ripple concept, which Oceanic is named after, goes to Ryan Fugger, its developer. See the Wikipedia article on the Ripple Monetary System, for instance. I only came up with the parts about why it blows :))
+
+
+In that time, the sheer complexity of the financial system, mostly unburdened with regulation, had grown to be completely beyond management by the central banking system's controls. Tricks of financial magic could hide billions in a trader's back pocket, and reserve fraction requirements meant little as banks willfully bypassed rules and hid their actions with ever more complicated instruments and securities. The banks collaborated in their ruse, so statistical analysis wouldn't be able to point out any one of them as going beyond the system.
+
+The central bank fell, partially because of an untimely choice by the government at the time to run an audit, but partially because it had simply be
+
+
+Have you ever thought of how to calculate the total amount of money in the world? At first it might seem to be a problem that's unexpectional aside for the sheer scale: Just count up all of the cash, and all of the accounts, and investments in money market funds and all that...
+
+But wait. Even ignoring that the complexity of the financial system at large is far greater than that, don't we seem to be missing a very important concept here? What about the fellow living next to you with the nice car and the big house, who's going to be in debt for decades - don't you have to count him as reducing the amount of money in the world? 
+
+And if you do, where does *your* money come from? Perhaps you were paid for work you did - where did the payer's money come from? Perhaps they in turn were paid by someone else. The chain can go on for however you please, but it does have to end eventually. The money has to come from somewhere. 
+
+Most likely you already know where: Almost certainly from a 
