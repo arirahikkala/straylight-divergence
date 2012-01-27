@@ -1,5 +1,7 @@
 It begins, the todoification!
 
+- replace all data file handling stuff with yaml-with-class
+ - ... making sure it actually works
 - layoutAllowed seems rather strongly broken; fix it STRONGLY
 - decorateRect needs to be fixed as well, so that it'll actually change the room in calling layoutAllowed if the layout is smaller than the rect it gets put in
 - in general it seems that layoutAllowed is kinda a bit complex and hard to debug! That's not really a good combination! So try to figure out some way to make it more amenable to debugging.
