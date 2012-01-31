@@ -98,7 +98,7 @@ pickSectionAmount = go `fmap` getRandomR (1, 1000 :: Int)
                | otherwise = 11
 -}
 
--- todo: handle decreasing the numSections that came from pickSectionAmount in case axisSize > maxSize && (axisSize `div` numSections) >= minSize
+-- todo: handle decreasing the numSections that came from pickSectionAmount in case axisSize > maxSize && (axisSize `div` numSections) <= minSize
 -- also note that if minSize > maxSize `div` 2, campusSplit might leave sections bigger than maxSize around
 -- current splitting function for subdivideRectangle used by the Campus mapgen
 campusSplit minSize maxSize sizeNumerator sizeDenominator cs@(Coord xb yb, Coord xe ye) _ =

@@ -9,9 +9,9 @@ Build-Type: Simple
 Cabal-version: >= 1.2
 
 Executable divergence
-  Hs-source-dirs: src yaml-with-class
+  Hs-source-dirs: src
   Main-is: Main.hs
   C-sources: cbits/astar-jps/IndexPriorityQueue.c cbits/astar-jps/AStar.c
   cc-options: -std=c99 -O2
   Ghc-options: -auto-all -rtsopts
-  Build-Depends: base >= 3 && <5, data-accessor, data-accessor-template, random, mtl, hscurses, containers, array,  MonadRandom, fgl, vector-space, Graphalyze, process, PSQueue, QuickCheck >= 2 && <3, MaybeT, deepseq, derive, astar
+  Build-Depends: base >= 3 && <5, data-accessor, data-accessor-template, random, mtl, hscurses, containers, array,  MonadRandom, fgl, vector-space, Graphalyze, process, PSQueue, QuickCheck >= 2 && <3, MaybeT, deepseq, derive, astar, text, yaml-with-class

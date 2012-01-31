@@ -31,6 +31,7 @@ It begins, the todoification!
 - implement calm-state AI in general
 - rewrite corridorishness in Room.hs:connectCompound, figure out if it does anything
 - better comment stripping in DataFile
+- isPickupable predicate for objects
 
 Done:
 

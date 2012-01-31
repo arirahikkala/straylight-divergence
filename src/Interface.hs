@@ -33,7 +33,7 @@ import qualified Data.Set as Set
 import qualified Data.Map as Map
 
 import Tile
-import SaveLoad (serialize)
+import SaveLoad (saveToFile)
 
 keyToDirection (KeyChar '1') = Just SW
 keyToDirection (KeyChar '2') = Just S
