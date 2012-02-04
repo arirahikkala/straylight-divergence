@@ -66,6 +66,9 @@ More possible perks:
 - stable aim: Shooting after moving or standing still is a free action; however, if you did move, cover penalties are fully counted for the whole distance the shot travels (this is to discourage constantly hopping in and out of cover using stable aim). If you moved into cover, you can avoid shooting at said cover by waiting a turn.
 - dualwielding: (in a later version)
 - cartwheel grab: Picking a single object off the ground after moving or standing still is a free action.
+- initiative modifiers (for instance: Always get to be last in initiative if a turn takes you from seeing no enemies to seeing some enemies; get to be earlier in initiative in other situations; distracting others so they'll go later, or forcing others to be hasty so they'll go earlier)
+- creep (limit visibility when going around corners)
+- gun kata: Every turn the game rolls (2, 3, 4) possible directions for you to move in, as long as you 
 - jumping 
 
 
