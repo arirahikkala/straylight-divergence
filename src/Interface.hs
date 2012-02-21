@@ -13,7 +13,6 @@ import Object
 import RenderObject
 import CommonTypes
 import qualified LocationMap as Loc
-import AI (act)
 import Action
 import Interface.Key
 import Text

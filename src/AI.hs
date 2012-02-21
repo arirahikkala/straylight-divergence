@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, NoMonomorphismRestriction, TupleSections #-}
-module AI (act) where
+module AI (chooseAction) where
 
 import Util (uniformRandomPick, renderCoordCharArray)
 import Rect (rectCoords)
@@ -19,16 +19,20 @@ import Control.Monad.State
 import AStarFFI
 
 import Data.Accessor
+import Action
 
-act r = 
-    do o <- dereferObj r
-       pos <- mapPosition r
-    -- todo: add a stay-still fallback for when there's nowhere to go
+chooseAction :: SpecificObject -> PureGame (SpecificObject, (Initiative, Action))
+chooseAction thisActor@(SpecificObject r o) = 
+    do pos <- mapPosition r
        let plan = movementPlan_ . ai_ $ o
        case plan of
          [] -> do p <- newMovementPlan pos
-                  touch r ((movementPlan <. ai ^= p) $ o)
-         _ -> return ()
+                  return (SpecificObject r (movementPlan <. ai ^= p $ o), (0, Idle))
+--         [] -> do p <- newMovementPlan pos
+--                  touch r ((movementPlan <. ai ^= p) $ o)
+         (x:xs) -> return (SpecificObject r (movementPlan <. ai ^= xs $ o), (0, WalkTo x))
+
+{-
        plan <- (movementPlan_ . ai_) `fmap` dereferObj r
        case plan of
          [] -> return ()
@@ -38,7 +42,7 @@ act r =
                         Nothing -> return ()
                         Just _ -> do touch r ((movementPlan <. ai ^= []) $ o)
                                      act r
-
+-}
 newMovementPlan (level, c) =
     do goal <- randomDistantTargetCoord level c
        w <- gsLevel level world_

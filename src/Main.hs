@@ -64,7 +64,7 @@ lookupWeaponPrototype prot = Map.lookup prot `fmap` asksGlobal rangedWeaponProto
 --prepMain :: (MonadGame m, Functor m, MonadIO m, MonadCurses m) => m ()
 prepMain newGame = do
   mapOutput <- liftIO $ openFile "map.html" WriteMode
-  when newGame $ do (w, doorsAndStuff, c) <- makeMap (CampusArgs 1 2 4 0.4 0.02) (Coord 0 0, Coord 100 100)
+  when newGame $ do (w, doorsAndStuff, c) <- makeMap (CampusArgs 1 2 4 0.4 0.02) (Coord 0 0, Coord 50 50)
                     introduceActor playerCharRef
                     mPlayerLevel (world ^= w)
                     mPlayerLevel (compounds ^= makeCompounds (bounds w) c)

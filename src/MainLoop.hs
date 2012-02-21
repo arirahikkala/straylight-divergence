@@ -14,6 +14,7 @@ import BasicTypes
 import Object
 import Action
 import Interface
+import AI (chooseAction)
 
 mainLoop =
     do allObjects <- Map.assocs `fmap` gsGlobal references_
@@ -22,7 +23,10 @@ mainLoop =
        gameconfig <- askGlobal
        randomStates <- replicateM (length aiActors) getSplit
        let aiActions :: [(SpecificObject, (Initiative, Action))]
-           aiActions = zipWith (\a r -> (a, runIdentity $ evalGameT (chooseAction a) r gamestate gameconfig)) aiActors randomStates
+           aiActions = zipWith (\a r -> (runIdentity $ evalGameT (chooseAction a) r gamestate gameconfig)) aiActors randomStates
+       -- AIs get to touch themselves but not the rest of the world when choosing actions
+       -- (this allows them to save action plans made on their turn, etc.)
+       mapM (\(o, _) -> touch (ref o) (obj o)) aiActions
        playerAction <- doInterface
        case playerAction of
          Quit -> return ()
@@ -33,8 +37,8 @@ mainLoop =
            mGlobal (currentTurn ^: succ)
            mainLoop
 
-chooseAction :: SpecificObject -> PureGame (Initiative, Action)
-chooseAction r = return (0, Idle)
+--chooseAction :: SpecificObject -> PureGame (SpecificObject, (Initiative, Action))
+--chooseAction r = return (0, Idle)
 
 
 {-
