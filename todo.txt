@@ -1,5 +1,6 @@
 It begins, the todoification!
 
+- put back crash protection stuff in the new simultaneous-turns main loop
 - replace all data file handling stuff with yaml-with-class
  - ... making sure it actually works
 - layoutAllowed seems rather strongly broken; fix it STRONGLY

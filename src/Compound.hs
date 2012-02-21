@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, TemplateHaskell, FlexibleContexts, FlexibleInstances, UndecidableInstances, MultiParamTypeClasses #-}
 module Compound where
 
 import Data.Array.IArray
@@ -6,7 +6,7 @@ import BasicTypes
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Rect
-import Data.Data
+import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
 
 import Util (newIArray)
@@ -15,16 +15,18 @@ import Util (newIArray)
 
 -- almost the same deal with data structures as with objects: one structure for relating locations to compound IDs, another relating compound IDs to compounds
 -- except here most coords are related to a compound (the outside is CompoundRef 0, so sort of a compound in itself) and at most one compound, hence the array
-newtype CompoundRef = CompoundRef Int deriving (Show, Read, Eq, Ord, Enum, Data, Typeable)
+newtype CompoundRef = CompoundRef Int deriving (Show, Read, Eq, Ord, Enum)
 
 data Compounds = Compounds {
       compoundsCoords_ :: Array Coord CompoundRef
     , compoundsRefs_ :: Map CompoundRef Compound
-} deriving (Show, Read, Data, Typeable)
+} deriving (Show, Read)
 
 data Compound = Compound {
       compoundRooms_ :: [BoundsRect]
-} deriving (Show, Read, Data, Typeable)
+} deriving (Show, Read)
+
+$(derive [''Compounds, ''Compound, ''CompoundRef])
 
 --numberCompounds :: [[BoundsRect]] -> [(CompoundRef, Compound)]
 numberCompounds cs =

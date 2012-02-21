@@ -1,9 +1,9 @@
 {-# LANGUAGE FlexibleContexts, ParallelListComp, TupleSections, NoMonomorphismRestriction, ScopedTypeVariables, NamedFieldPuns, BangPatterns #-}
-module Interface (startMainLoop, renderPos) where
+module Interface (renderPos, doInterface) where
 
 import Prelude hiding (catch)
 import Control.Exception (catch, SomeException)
-
+import Control.Concurrent
 import Control.Arrow ((&&&), (***), first, second)
 import Data.List (find, sortBy, groupBy, findIndex, intersperse, sort, intersect, minimumBy, (\\), intercalate)
 import Control.Monad.State
@@ -14,7 +14,8 @@ import RenderObject
 import CommonTypes
 import qualified LocationMap as Loc
 import AI (act)
-
+import Action
+import Interface.Key
 import Text
 import CursesWrap
 import UI.HSCurses.Curses (Key(..))
@@ -22,7 +23,7 @@ import Util (none, whenM, unlessM, ifM, matching, unpick, pick, applyOnIndex,
              takeUntilLimit, maybeHead, lengthAtLeast, (!!/),
              takeWhileM, anyM)
 import Data.Ord (comparing)
-import Data.Maybe (mapMaybe, listToMaybe, catMaybes, isNothing)
+import Data.Maybe (mapMaybe, listToMaybe, catMaybes, isNothing, fromMaybe)
 
 import Control.Monad.Writer
 import Los
@@ -34,6 +35,7 @@ import qualified Data.Map as Map
 
 import Tile
 import SaveLoad (saveToFile)
+import Data.Default
 
 keyToDirection (KeyChar '1') = Just SW
 keyToDirection (KeyChar '2') = Just S
@@ -75,6 +77,7 @@ printLinesReverse (eX, eY) =
     zipWithM_ (\lineNum line ->
                    mvAddStr eX (eY - lineNum) line) [0..] 
 
+
 updateMessageScreen = do
   m <- gsGlobal messages_
   let messagesToRender = fst $ fst $ 
@@ -85,7 +88,6 @@ updateMessageScreen = do
          concat messagesToRender
   liftIO $ refresh
 
-mpr message = mGlobal (messages ^: (message:)) >> updateMessageScreen
 
 data TargetArgs m = TargetArgs {
       source :: Maybe Coord
@@ -95,7 +97,7 @@ data TargetArgs m = TargetArgs {
     , targets :: [Coord]
 }
 
-instance (Functor m, Monad m) => Def (TargetArgs m) where
+instance (Functor m, Monad m) => Default (TargetArgs m) where
     def = TargetArgs {
             source = Nothing -- use player character position
           , beamFun = shootingBeam
@@ -276,52 +278,6 @@ tileIsTrue a c
 headOrDefault d [] = d
 headOrDefault _ (x:_) = x
 
-{-
-runTurn
-  :: (MonadGame m,
-      MonadIO m,
-      CursesRenderT.MonadCurses m,
-      Functor m) => 
-     GameT m a -> m ()
--}
-
-startMainLoop randGen s c = mainLoop randGen s c
-
-mainLoop randGen state c = do
-  ((_, newState), newRandGen)
-      <- catch (runGameT handleWorld randGen state c)
-         (\e -> do erase -- todo: add bug reporting information etc.
-                   setColor (Grey, Black)
-                   mvAddStr 0 0 "Oh dear, I seem to have crashed!"
-                   mvAddStr 0 1 ("(the error being: " ++ 
-                                 show (e :: SomeException) ++ ")")
-                   mvAddStr 0 2 "Trying to store the previous game state..."
-                   refresh
--- this is not guaranteed to succeed since the game state is not necessarily fully strict
-                   writeFile "emergencySave" (show $ serialize state)
-                   mvAddStr 0 3 "Still here! Press any key to exit..."
-                   refresh
-                   getCh
-                   return $ (((), (doQuit ^= True) state), randGen))
-  unless (doQuit_ newState) $ do 
-    mainLoop newRandGen newState c
-
-handleWorld =
-    do allObjects <- Map.assocs `fmap` gsGlobal references_
-       monsters <- map ref `fmap` (filterM takesActions $ map (uncurry SpecificObject) allObjects)
-       mapM_ freeToAct monsters
-       mGlobal (currentTurn ^: succ)
-
-freeToAct (ObjRef 1) = 
-    do doInterface
-       done <- gsGlobal turnDone_
-       if done
-          then return ()
-          else freeToAct (ObjRef 1)
-
-freeToAct r = 
-    whenM ((Map.member r) `fmap` gsGlobal references_) $ act r
-
 doInterface =
     do mGlobal ((turnDone ^= False) . (doQuit ^= False))
 
@@ -360,17 +316,20 @@ doInterface =
        updateMessageScreen
 
        liftIO $ mvAddStr 37 2 ("Health:  "++ show (health_ $ charObj) ++ "/10")
-       liftIO $ mvAddStr 37 3 ("Stamina: "++ show (stamina_ $ charObj)++ "/10")
 
        turn <- gsGlobal currentTurn_
        liftIO $ mvAddStr 37 5 ("Turn:     " ++ show turn)
        liftIO $ mvAddStr 37 6 ("Position: " ++ show charPos)
 
+       focusSlotKeys <- map (keyToChar . fromMaybe (KeyChar '?')) `fmap` mapM focusSlotKey [0..numFocuses_ charObj]
+       focusDescriptions <- mapM (name <=< dto) $ focus_ charObj
+
+       let focusSlots = zipWith (\key descr -> key : ": " ++ descr) focusSlotKeys focusDescriptions
+
+       liftIO $ zipWithM_ (\n slot -> mvAddStr 37 (8+n) slot) [0..] focusSlots
+
        animate
-{-
-       renderBar (54, 2) 24 10 $ health_ charObj
-       renderBar (54, 3) 24 10 $ stamina_ charObj
--}
+
 
 
 animate = do
@@ -398,12 +357,76 @@ updateFlings =  map (flingedProgress ^: succ)
 handleInput c = do
   charPos <- mapPosition playerCharRef
   o <- dereferObj playerCharRef
-  case keyToDirection c of 
+  keyAction <- getKeyAction c
+  case keyAction of
+    Nothing -> doInterface -- todo: Precisely what to do here?
+    Just a -> case a of
+                North -> bump (adjustPos N (snd charPos))
+                Northwest -> bump (adjustPos NW (snd charPos))
+                Northeast -> bump (adjustPos NE (snd charPos))
+                South -> bump (adjustPos S (snd charPos))
+                Southwest -> bump (adjustPos SW (snd charPos))
+                Southeast -> bump (adjustPos SE (snd charPos))
+                West -> bump (adjustPos W (snd charPos))
+                East -> bump (adjustPos E (snd charPos))
+                StayInPlace -> return Idle
+                SaveGame -> do s <- gGlobal
+                               mpr "{saving game}"
+                               liftIO $ saveToFile "save" s
+                               doInterface
+                QuitGame -> return Quit
+
+                UseFocusSlot s -> use s
+
+use s = do
+  po <- dereferObj playerCharRef
+  case focus_ po !!/ s of
+    Nothing -> doInterface
+    Just fr -> do 
+          fo <- dereferObj fr
+          case fo of
+            RangedWeapon { rangedWeaponPrototype_ = prot } -> do
+                         myTargets <- pickShootingTargets
+                         targetBeam <- target (def { targets = myTargets, 
+                                                   acceptFun = notBlindly . notWhenBlocked tileBlocksVision $ anythingGoes })
+                         case targetBeam of
+                           Nothing -> doInterface
+                           Just targetBeam' -> do
+                                           singleTarget <- chooseAttackTarget (last targetBeam')
+                                           case singleTarget of
+                                             Nothing -> doInterface -- todo: what to do here?
+                                             Just singleTarget' -> return $ Attack singleTarget' fr
+            _ -> doInterface
+{-              do myTargets <- pickShootingTargets
+                 onM_ (target (def { targets = myTargets,
+                                     acceptFun = notBlindly . notWhenBlocked tileBlocksVision $ anythingGoes })) $ \c ->
+                        do onM_ (chooseAttackTarget (last c)) 
+                                (playerCharRef `attack`)
+-}
+
+attack ra rd = do
+  when (ra == playerCharRef) passTurn
+  mGlobal (references ^: Map.adjust (health ^: subtract 1) rd)
+  whenM ((<0) `liftM` health_ `liftM` dereferObj rd)
+            $ removeActor rd
+
+chooseAttackTarget c =
+    do p <- gsGlobal positions_
+       level <- playerLevel
+       let rs = Set.elems $ Loc.lookupObjRefs (OnMap level c) p
+       os <- mapM dereferObj rs
+       fmap ref `fmap` (findM isAttackTargetable $ zipWith SpecificObject rs os)
+
+{-  case keyToDirection c of 
     Just d -> bump (adjustPos d (snd charPos))
     Nothing -> 
+        return Idle
+
+-}
+{-
         case c of
           KeyChar 'w' -> do s <- gGlobal
-                            liftIO (writeFile "save" $ show $ serialize s)
+                            liftIO (writeFile "save" $ serialize s)
                             return ()
           KeyChar 'q' -> mGlobal ((doQuit ^= True) . (turnDone ^= True)) >> return ()
           KeyChar '5' -> passTurn
@@ -432,6 +455,35 @@ handleInput c = do
           KeyChar 'k' -> uncurry causeExplosion charPos
           _ -> do 
             return () -- xxx: complain about mispresses?
+-}
+
+bump :: (Monad m, MonadIO m, Functor m) => Coord -> GameT m Action
+bump c = do
+  level <- playerLevel
+  rsos <- getPosObjs (OnMap level c)
+  target <- findM isAttackTargetable rsos 
+  o <- dereferObj playerCharRef
+  case target of
+    Just x -> return Idle
+    Nothing -> do r <- try $ tryWalkTo (SpecificObject playerCharRef o) (level, c) 
+                  case r of
+                    Nothing -> return $ WalkTo c
+                    Just msg -> mpr msg >> doInterface
+-- $ return $ WalkTo c
+    
+{-
+bump c = do
+  level <- playerLevel
+  rsos <- getPosObjs (OnMap level c)
+  target <- findM isAttackTargetable rsos 
+  o <- dereferObj playerCharRef
+  case target of
+    Just x -> attack playerCharRef (ref x) >> passTurn
+    Nothing -> case find ((\o -> isDoor o && closed_ o) . obj) rsos of
+                 Just (SpecificObject r o) -> touch r ((closed ^= False) $ o) >> passTurn
+                 Nothing -> whenM (isNothing `fmap` tryWalkTo (SpecificObject playerCharRef o) (level, c)) passTurn
+
+-}
 
 -- todo: will need to be expanded into code that:
 -- - damages items
@@ -527,34 +579,7 @@ findM :: Monad m => (a -> m Bool) -> [a] -> m (Maybe a)
 findM _ [] = return Nothing
 findM f (x:xs) = do { b <- f x; if b then return (Just x) else findM f xs }
 
-bump c = do
-  level <- playerLevel
-  rsos <- getPosObjs (OnMap level c)
-  target <- findM isAttackTargetable rsos 
-  o <- dereferObj playerCharRef
-  case target of
-    Just x -> attack playerCharRef (ref x) >> passTurn
-    Nothing -> case find ((\o -> isDoor o && closed_ o) . obj) rsos of
-                 Just (SpecificObject r o) -> touch r ((closed ^= False) $ o) >> passTurn
-                 Nothing -> whenM (isNothing `fmap` tryWalkTo (SpecificObject playerCharRef o) (level, c)) passTurn
 
-attack ra rd = do
-  when (ra == playerCharRef) passTurn
-  mGlobal (references ^: Map.adjust (health ^: subtract 1) rd)
-  whenM ((<0) `liftM` health_ `liftM` dereferObj rd)
-            $ removeActor rd
-
-chooseAttackTarget c =
-    do p <- gsGlobal positions_
-       level <- playerLevel
-       let rs = Set.elems $ Loc.lookupObjRefs (OnMap level c) p
-       os <- mapM dereferObj rs
-       fmap ref `fmap` (findM isAttackTargetable $ zipWith SpecificObject rs os)
-
-removeActor r | r == playerCharRef = return ()
-removeActor r = do
-    mGlobal ((references ^: Map.delete r) .
-             (positions ^: Loc.delete r))
 
 jumpBeam c1 c2 = do
   let beams = allConnectingLines c1 c2

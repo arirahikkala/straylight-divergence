@@ -1,7 +1,7 @@
-{-# LANGUAGE ForeignFunctionInterface, NoMonomorphismRestriction, ParallelListComp, DeriveDataTypeable  #-}
+{-# LANGUAGE ForeignFunctionInterface, NoMonomorphismRestriction, ParallelListComp, DeriveDataTypeable, TemplateHaskell, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances  #-}
 module CursesWrap where
 
-import Data.Data
+import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
 import Control.Arrow ((***))
 import qualified UI.HSCurses.Curses as C
@@ -11,6 +11,35 @@ import Foreign.C.String
 import Foreign (Ptr)
 
 import Data.Monoid (Monoid, mappend, mempty)
+
+-- todo: do I use these Update things?
+data Update a = New a | Revert | None
+
+data UpdateStyle = UpdateStyle {
+      updateBright :: Update Bool
+    , updateBrightBg :: Update Bool
+    , updateFgColor :: Update ColorName
+    , updateBgColor :: ColorName
+}
+
+data ColorName = Black | Red | Green | Yellow | Blue | Purple | Cyan | Grey deriving (Eq, Ord, Enum, Bounded, Show, Read)
+
+data Style = Style {
+      bright :: Bool
+    , brightBg :: Bool
+    , fgColor :: ColorName
+    , bgColor :: ColorName
+} deriving (Show, Read, Eq)
+
+data StyledChar = StyledChar {
+      style :: Style
+    , c :: Char 
+    } | StyleAnimatedChar {
+      styles :: [Style]
+    , c :: Char
+} deriving (Show, Read, Eq)
+
+$(derive [''ColorName, ''Style, ''StyledChar])
 -- wrap the curses functions that I use in order to give me back my nice x, y - ordered arguments rather than the confusing y, x - ordered ones, 
 -- and to bring all the curses stuff in one place so I don't need both Curses and CursesHelper :p
 
@@ -95,7 +124,6 @@ wgetch w = C.decodeKey `fmap` wgetch_c w
 clearArea (x1, y1) (x2, y2) =
     sequence_ [mvAddCh x y ' ' | x <- [x1..x2], y <- [y1..y2]]
 
-data ColorName = Black | Red | Green | Yellow | Blue | Purple | Cyan | Grey deriving (Eq, Ord, Enum, Bounded, Show, Read, Data, Typeable)
 
 getPair :: (ColorName, ColorName) -> C.Pair
 getPair (fg, bg) = C.Pair (1 + ((8 * fromEnum bg) + (fromEnum fg)))
@@ -183,27 +211,3 @@ withBoldBg b a = do
   r <- a
   uncurry C.attrSet old
   return r
-
-data Update a = New a | Revert | None
-
-data UpdateStyle = UpdateStyle {
-      updateBright :: Update Bool
-    , updateBrightBg :: Update Bool
-    , updateFgColor :: Update ColorName
-    , updateBgColor :: ColorName
-}
-
-data Style = Style {
-      bright :: Bool
-    , brightBg :: Bool
-    , fgColor :: ColorName
-    , bgColor :: ColorName
-} deriving (Show, Read, Data, Typeable, Eq)
-
-data StyledChar = StyledChar {
-      style :: Style
-    , c :: Char 
-    } | StyleAnimatedChar {
-      styles :: [Style]
-    , c :: Char
-} deriving (Show, Read, Data, Typeable, Eq)

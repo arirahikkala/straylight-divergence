@@ -1,10 +1,13 @@
-{-# LANGUAGE TemplateHaskell, NamedFieldPuns, NoMonomorphismRestriction, BangPatterns, DeriveDataTypeable, ViewPatterns #-}
+{-# LANGUAGE TemplateHaskell, NamedFieldPuns, NoMonomorphismRestriction, BangPatterns, ViewPatterns, DeriveDataTypeable, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, UndecidableInstances #-}
 module Object where
 
 import BasicTypes
 
 import Data.Accessor.Template
-import Data.Data
+import Data.Typeable
+--import Data.Generics.SYB.WithClass
+import Data.Generics.SYB.WithClass.Derive
+
 import CursesWrap (StyledChar)
 --import Data.Set (Set)
 import qualified Data.Set as Set (empty)
@@ -21,8 +24,12 @@ data Object =
     Actor {
       ai_ :: ! AIState
     , health_ :: ! Int
-    , stamina_ :: ! Int
+    , focus_ :: [ObjRef]
+    , numFocuses_ :: ! Int
     } | 
+    RangedWeapon {
+      rangedWeaponPrototype_ :: RangedWeaponPrototype
+    } |
     Door { 
       closed_ :: ! Bool
     } |
@@ -35,7 +42,12 @@ data Object =
     DebugChar {
       char_ :: ! Char
     }
-    deriving (Show, Read, Data, Typeable, Eq)
+    deriving (Show, Eq)
+
+data RangedWeaponPrototype = RangedWeaponPrototype {
+      rangedWeaponName :: String
+    , rangedWeaponDamage :: Int
+} deriving (Show, Eq)
 
 data FurniturePrototype = FurniturePrototype {
       furniturePrototypeName :: String 
@@ -44,23 +56,34 @@ data FurniturePrototype = FurniturePrototype {
     , furniturePrototypeWeight :: Double
     , furniturePrototypeWalkable :: Bool
     , furniturePrototypeConcealment :: Double
-} deriving (Show, Read, Data, Typeable, Eq)
+} deriving (Show, Read, Eq)
 
 data RubbleMaterial = WoodRubble | BookRubble | StoneRubble
-                      deriving (Show, Read, Data, Typeable, Eq)
+                      deriving (Show, Read, Eq)
 
+name (SpecificObject { obj = o }) = return $
+    case o of
+      (Door {}) -> "door"
+      (DebugChar {char_}) -> "debug " ++ [char_]
+      (RangedWeapon {rangedWeaponPrototype_ = proto} ) -> rangedWeaponName proto
+      (Actor {}) -> "actor"
+      (Furniture {furniturePrototype_ = proto}) -> furniturePrototypeName proto
+      (Rubble { rubbleMaterial_ = material }) -> show material
+      
 --name (Door {}) = "door"
---name (DebugChar {char_}) = "debug " ++ [char_]
+--name 
 
 debugChar c = DebugChar c
 
 door closed = Door closed
 
-buddy = Actor (AIState []) 10 10
+buddy = Actor (AIState []) 10 [] 1
 
 data AIState = AIState {
       movementPlan_ :: [Coord]
-} deriving (Show, Read, Data, Typeable, Eq)
+} deriving (Show, Read, Eq)
+
+$(derive [''Object, ''FurniturePrototype, ''RangedWeaponPrototype, ''RubbleMaterial, ''AIState])
 
 $( deriveAccessors ''Object )
 $( deriveAccessors ''AIState )
@@ -107,5 +130,6 @@ objectRenderingOrder _ = 2
 
 defaultPlayer = Actor { ai_ = AIState []
                       , health_ = 10
-                      , stamina_ = 10
+                      , numFocuses_ = 1
+                      , focus_ = []
                       }

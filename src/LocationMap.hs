@@ -1,8 +1,9 @@
-{-# LANGUAGE BangPatterns, DeriveDataTypeable #-}
+{-# LANGUAGE BangPatterns, DeriveDataTypeable, TemplateHaskell, UndecidableInstances, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
 module LocationMap where
 
 import DataUtil
-import Data.Data
+import Data.Generics.SYB.WithClass.Basics
+import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
 import BasicTypes
 import Data.Map (Map)
@@ -14,12 +15,13 @@ import qualified Data.Set as Set (empty)
 {- Note: Since every value in one side of a LocationMap is a key in the other 
    side, MapS are spine-strict, and the LocationMap constructor is strict in 
    both of its members, LocationMapS *should* be strict for all
-   keys and values. 
+   keys and values. At least as far as I can tell.
 -}
 data LocationMap r l = 
     LocationMap { mr :: !(Map r l),
-                  ml :: !(Map l (Set r))} deriving (Show, Read, Data, Typeable)
+                  ml :: !(Map l (Set r))} deriving (Show, Read)
 
+$(derive [''LocationMap])
 -- A slightly faster version of insert for placing a given object into the map for the first time
 introduce :: (Ord r, Ord l) => r -> l -> LocationMap r l -> LocationMap r l
 introduce r l (LocationMap mr ml) = LocationMap (Map.insert r l mr) (insertAssoc l r ml)

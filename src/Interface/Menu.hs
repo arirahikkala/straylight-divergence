@@ -16,6 +16,7 @@ import UI.HSCurses.Curses (Key(..))
 import Data.Ord (comparing)
 import Data.VectorSpace ((^+^))
 import Text
+import Interface.Key
 
 import Data.Accessor
 import Data.Accessor.Tuple
@@ -162,11 +163,6 @@ menuProcessBoundKey m k =
                      MenuNextPage ->
                          menuMoveCursor m (MovePage 1)
                      _ -> Nothing
-
-getKeyAction :: Monad m => Key -> GameT m (Maybe KeyAction)
-getKeyAction k = 
-    do bindings <- asksGlobal keyBindings
-       return $ lookup k bindings
 
 firstItemOnScreen m = sum (map length $ take (fst $ cursorPosition_ m) $ pages_ m)
 lastItemOnScreen m = firstItemOnScreen m + pred (length $ currentPage_ m)

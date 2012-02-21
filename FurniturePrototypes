@@ -21,7 +21,7 @@
  FurniturePrototype {furniturePrototypeName = "couch", 
                      furniturePrototypeGlyph = StyledChar {style = Style {bright = False, 
                                                                           brightBg = False,
-                                                                          fgColor = Red,
+                                                                          fgColor = Grey,
                                                                           bgColor = Black},
                                                            c = '_'}, 
                      furniturePrototypeDamageSequence = [(20.0,WoodRubble)], 

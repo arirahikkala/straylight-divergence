@@ -24,6 +24,7 @@ import qualified LocationMap as Loc
 
 import Util (maybeHead, lookupAssocSet, squaredEuclideanDistance, chebyshevDistance, none, (!/))
 
+
 squaredVisionDistanceLimit = 7^2
 
 adjacentsInWorldBounds level c = do
@@ -95,6 +96,8 @@ dereferObj objref =
 dereferObjToSpecific objref = 
     do o <- dereferObj objref
        return $ SpecificObject objref o
+
+dto = dereferObjToSpecific
 
 --allContents :: MonadState GameState m => ObjRef -> m [ObjRef]
 {-
@@ -214,3 +217,10 @@ numCompounds :: (Functor m, Monad m) => LevelRef -> GameT m Int
 numCompounds l = do
   (Compounds {compoundsRefs_}) <- gsLevel l compounds_
   return $ Map.size compoundsRefs_
+
+removeActor r | r == playerCharRef = return ()
+removeActor r = do
+    mGlobal ((references ^: Map.delete r) .
+             (positions ^: Loc.delete r))
+
+mpr message = mGlobal (messages ^: (message:))

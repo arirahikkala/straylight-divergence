@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances, TemplateHaskell #-}
 module Tile where
 {-module Tile (Tile (), Floor (..), Wall (..), 
              makeWall, makeFloor, emptySpace, 
@@ -7,13 +7,15 @@ module Tile where
 -}
 import Data.Bits
 import CursesWrap (ColorName (..), StyledChar (..), Style (..))
-import Data.Data
+import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
 
--- bit allocation for now: last 4 bits for Floor, next 4 bits after them for Wall
+-- bit allocation for now: last 4 bits for Floor, last 4 bits before them for Wall
 -- I'm assuming Liberally that the Int type will have enough bits for my needs so I don't have to bother with casting :>
 -- (in fact this file is pretty lazily written in general...)
-newtype Tile = Tile {unTile :: Int} deriving (Show, Read, Data, Typeable)
+newtype Tile = Tile {unTile :: Int} deriving (Show, Read)
+
+$(derive [''Tile])
 
 data Floor = NoFloor | Concrete | Asphalt | Grass | Sett | Floor | Carpeting | Sand | Water deriving (Show, Eq, Enum)
 

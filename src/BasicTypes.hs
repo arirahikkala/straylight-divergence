@@ -1,7 +1,8 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, TypeFamilies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, TypeFamilies, TemplateHaskell, FlexibleContexts, FlexibleInstances, UndecidableInstances, MultiParamTypeClasses #-}
 module BasicTypes where
 
-import Data.Data
+import Data.Typeable
+import Data.Generics.SYB.WithClass.Derive
 import Data.Ix (Ix)
 import Data.Set (Set)
 import System.Random (Random, random, randomR)
@@ -10,14 +11,19 @@ import Data.VectorSpace
 import Test.QuickCheck
 import Control.Exception
 
-class Def a where
-    def :: a
-
 data Location = OnMap { level :: !LevelRef, coord :: !Coord } | InContainer !ObjRef
-                deriving (Show, Eq, Ord, Read, Data, Typeable) -- Ord instance used only for storing these in a Map
+                deriving (Show, Eq, Ord, Read) -- Ord instance used only for storing these in a Map
 
 data Coord = Coord { x :: !Int, y :: !Int }
-             deriving (Eq, Ord, Show, Ix, Read, Data, Typeable)
+             deriving (Eq, Ord, Show, Ix, Read)
+
+newtype ObjRef = ObjRef Int
+    deriving (Show, Eq, Ord, Enum, Read, Ix)
+
+newtype LevelRef = LevelRef Int
+    deriving (Show, Eq, Ord, Enum, Read, Ix)
+
+$(derive [''Location, ''Coord, ''ObjRef, ''LevelRef])
 
 type BoundsRect = (Coord, Coord)
 
@@ -51,16 +57,10 @@ instance Random Coord where
         (Coord x y, g2)
 
 
-newtype ObjRef = ObjRef Int
-    deriving (Show, Eq, Ord, Enum, Read, Data, Typeable)
-
-newtype LevelRef = LevelRef Int
-    deriving (Show, Eq, Ord, Enum, Read, Data, Typeable)
-
-
 type RefSet = Set ObjRef
 
 data GameException = DataFormatException String
                      deriving (Show, Typeable)
 
 instance Exception GameException 
+
