@@ -116,7 +116,8 @@ makeMap args mapBounds@(boundsMin, boundsMax) = do
 -- empty space naturally since those tiles are owned by rooms in the roomgraph (but don't have walls rendered on them because there 
 -- are no rooms on the other side to have edges with)
   (roomArray, roomGraph) <- (id *** nmap ((^+^ Coord 1 1) *** id)) `fmap` roomMap mapBounds defaultRectTreeArgs
-  let world1 = floorEverything $ accumArray const 0 mapBounds []
+  let world1 :: Array Coord Tile
+      world1 = floorEverything $ accumArray const 0 mapBounds []
   n <- getRandomR (0, noNodes roomGraph - 1)
 --  roomGraph2 <- addOutside args roomArray (nmap ((flip RoomLabel) True) $ roomGraph)
   let roomGraph2 = adjustNodeLabel (isInside ^= False) n $ nmap ((flip RoomLabel) True) $ roomGraph

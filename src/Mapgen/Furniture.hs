@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections, DeriveDataTypeable, NamedFieldPuns, ParallelListComp, TemplateHaskell, FlexibleContexts, NoMonomorphismRestriction #-}
+{-# LANGUAGE TupleSections, DeriveDataTypeable, NamedFieldPuns, ParallelListComp, TemplateHaskell, FlexibleContexts, NoMonomorphismRestriction, FlexibleInstances, UndecidableInstances, TemplateHaskell, MultiParamTypeClasses #-}
 module Mapgen.Furniture where
 
 import Mapgen.FurnitureCharacters
@@ -17,11 +17,11 @@ import AStarFFI (astar)
 
 import Control.Monad.Random
 import Control.Monad.Trans
-import Data.Data
+import Data.Generics.SYB.WithClass.Derive
 import Data.AdditiveGroup ((^+^), (^-^))
 import Data.Array.IArray -- todo: Import qualified
 import Data.Array.Unboxed
-import Data.List (findIndex, mapAccumL, intercalate, delete, find, foldl', nub)
+import Data.List (findIndex, mapAccumL, intercalate, delete, find, foldl', nub, intersect, (\\))
 import Data.Maybe (mapMaybe, fromMaybe, maybeToList, isJust)
 import Control.Exception (throw)
 import Data.Set (Set)
@@ -66,6 +66,7 @@ roomDoorSpaceTile r c@(Coord x y) =
 --blockedTile :: Rect -> [Coord] -> Coord -> Bool
 -- allConnectingLines used here because it's a simple way to get some nice thickness to the connecting lines (if it turns out slow, well, that's fixable, but I doubt performance will be a problem)
 
+blockedTiles :: (Coord, Coord) -> [Coord] -> Array Coord Bool
 blockedTiles room openings 
 --    | trace ("room: " ++ show room ++ "\nopenings: " ++ show openings ++ "\n") False = undefined
     | otherwise =
@@ -73,24 +74,29 @@ blockedTiles room openings
     // (map (, True) $ concat $ concat [allConnectingLines from to | from <- openings, to <- openings])
 
 blockedTilesToObstacles :: Array Coord Bool -> [BoundsRect]
-blockedTilesToObstacles a = map (id &&& (Coord 1 1 ^+^)) $ filter (fromMaybe False . (a !/)) $ range (bounds a)
+blockedTilesToObstacles a = map (id &&& (^+^ Coord 1 1)) . filter (fromMaybe False . (a !/)) $ range (bounds a)
 
 --openRectangles :: Rect -> [Coord] -> [Rect]
 
 --peel :: (Coord, Coord) -> (Coord, Coord)
 --peel (Coord xStart yStart, Coord xEnd yEnd) = (Coord (xStart + 1) (yStart + 1), Coord (xEnd - 1) (yEnd - 1))
 
+justRoomDoorSpaceTile r d = 
+    case roomDoorSpaceTile r d of 
+      Just x -> x
+      Nothing -> error ("justRoomDoorSpaceTile: room: " ++ show r ++ "\ndoor: " ++ show d)
+
 -- decompose a room into a greedy cover of open and closed rectangles, such that the closed rectangles cover the areas marked by drawing lines between every pair of entrances, and the open rectangles cover the rest
 openAndClosedRectangles r openings = 
-    let rInside = (id *** (^-^ Coord 1 1)) r
-        closed' = filter ((>4) . boundsRectSize) .
-                  findRectangles rInside .
+    let rInside = peel r
+        closed' = filter ((>4) . boundsRectSize) . -- keep the rects a little bit blocky so that there's space to put layouts in
+                  findRectangles r .
                   blockedTilesToObstacles .
-                  blockedTiles r .
-                  mapMaybe (roomDoorSpaceTile $ r) $
+                  blockedTiles rInside .
+                  map (justRoomDoorSpaceTile r) $
                   openings
-        open = filter ((>4) . boundsRectSize) $ findRectangles rInside closed' 
-        closed = findRectangles rInside open in
+        open = findRectangles r closed' 
+        closed = findRectangles r open in
     (open, closed)
 --decorateLounge :: Rect -> [Coord] -> [(Location, Object)]
 
@@ -114,6 +120,40 @@ elemsLessThan :: Ord k => k -> Map.Map k a -> [a]
 elemsLessThan k m = 
     case Map.splitLookup k m of
       (m, r, _) -> Map.elems m ++ (maybeToList r)
+
+type Layouts = [FurnitureLayout]
+
+modActivityPointCoord f ap@(ActivityPoint {apLocationInLayout}) = 
+    ap { apLocationInLayout = f apLocationInLayout }
+
+
+coordRotations r@(Coord rx ry) c = [c, rotate180 c, flipvert c, fliphorz c, rotate90 c, rotate270 c, flipur c, flipul c]
+    where 
+      rotate270 (Coord x y) = Coord (ry - y) x
+      rotate180 (Coord x y) = Coord (rx - x) (ry - y)
+      rotate90 (Coord x y) = Coord y (rx - x)
+      flipvert (Coord x y) = Coord x (ry - y)
+      fliphorz (Coord x y) = Coord (rx - x) y
+      flipur (Coord x y) = Coord y x
+      flipul (Coord x y) = Coord (ry - y) (rx - x)
+
+layoutRotations :: FurnitureLayout -> [FurnitureLayout]
+layoutRotations l@(FurnitureLayout {flMap, flWallConstraints, flActivityPoints}) =
+    let rect@(Coord rx ry) = snd $ bounds flMap
+        layoutIsSquare = rx == ry
+    in [let convertCoord = (!!n) . coordRotations (snd $ bounds flMap) in
+        l { flMap = ixmap (bounds flMap) convertCoord flMap
+          , flWallConstraints = convertConstraints flWallConstraints
+          , flActivityPoints = map (modActivityPointCoord convertCoord) flActivityPoints }
+            | n <- [0.. if layoutIsSquare then 7 else 3]
+            | convertConstraints <- [(\(n, e, s, w) -> (n, e, s, w)), -- id
+                                     (\(n, e, s, w) -> (s, w, n, e)), -- rotate180
+                                     (\(n, e, s, w) -> (s, e, n, w)), -- flipvert
+                                     (\(n, e, s, w) -> (n, w, s, e)), -- fliphorz
+                                     (\(n, e, s, w) -> (w, n, e, s)), -- rotate90
+                                     (\(n, e, s, w) -> (e, s, w, n)), -- rotate270
+                                     (\(n, e, s, w) -> (e, n, w, s)), -- flipur
+                                     (\(n, e, s, w) -> (w, s, e, n))]]-- flipul
 
 decorateRect :: (Monad m, MonadRandom m, MonadIO m, Functor m, IArray a Tile) =>
                 Map Coord Layouts
@@ -194,19 +234,57 @@ decorateRoom layouts roomType a room openings =
     let (open, closed) = openAndClosedRectangles room openings 
         allowed = Map.findWithDefault Map.empty roomType layouts
     in do
+      openSubs <- (filter ((>0) . boundsRectSize) . map peel)
+                  `fmap` (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 6 5 0) . bulgeToWalls room) open
+      closedSubs <- (filter ((>0) . boundsRectSize) . map peel) `fmap` 
+                    (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 6 5 0) . bulgeToWalls room) closed
+      liftIO $ appendFile "mapgenlog" ("room: " ++ show room ++ "\nopenings: " ++ show openings ++ "\nopen: " ++ show open ++ "\nopenSubs: " ++ show openSubs ++ "\nclosed: " ++ show closed ++ "\nclosedSubs: " ++ show closedSubs ++ "\n\n\n")
+
+      openObjs <- mapM (\r -> decorateRect allowed a r openings) openSubs
+      closedObjs <- mapM (\r -> decorateRect allowed a r openings) closedSubs
+      return . concat $ (openObjs ++ closedObjs)
+
+{-
+      let opens' = concatMap (containedCoords . peel) openSubs
+          closeds' = concatMap (containedCoords . peel) closedSubs
+          both = opens' `intersect` closeds'
+          opens = opens' \\ both
+          closeds = closeds' \\ both
+      return $ ([(DebugChar '|', c) | c <- opens] ++ 
+                [(DebugChar '-', c) | c <- closeds] ++ 
+                [(DebugChar '/', c) | c <- both])
+-}
+{-
+      let opens' = concatMap (containedCoords . peel) open
+          closeds' = concatMap (containedCoords . peel) closed
+          both = opens' `intersect` closeds'
+          opens = opens' \\ both
+          closeds = closeds' \\ both
+      return $ ([(DebugChar '|', c) | c <- opens] ++ 
+                [(DebugChar '-', c) | c <- closeds] ++ 
+                [(DebugChar '/', c) | c <- both])
+-}
+{-
       openSubs <- map peel `fmap` (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 6 5 0)) (map (bulgeDown room) open)
       closedSubs <- map peel `fmap` (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 6 5 0)) (map (bulgeDown room) closed)
       openObjs <- mapM (\r -> decorateRect allowed a r openings) openSubs
       closedObjs <- mapM (\r -> decorateRect allowed a r openings) closedSubs
       return . concat $ (openObjs ++ closedObjs)
-
+-}
 peel = second (^-^ Coord 1 1)
 bulge = second (^+^ Coord 1 1)
 
-bulgeDown b@(bb, be@(Coord bex bey)) x@(xb, xe@(Coord xex xey))
-    | bex == succ xex && bey == succ xey = (xb, Coord (succ xex) (succ xey))
-    | bex == succ xex = (xb, Coord (succ xex) xey)
-    | bey == succ xey = (xb, Coord xex (succ xey))
+{-
+peelFromWalls b@(bb, be@(Coord bex bey)) x@(xb, xe@(Coord xex xey))
+    | bex == pred xex && bey == pred xey = (xb, Coord (pred xex) (pred xey))
+    | bex == pred xex = (xb, Coord (pred xex) xey)
+    | bey == pred xey = (xb, Coord xex (pred xey))
+    | otherwise = (xb, xe)
+-}
+bulgeToWalls b@(bb, be@(Coord bex bey)) x@(xb, xe@(Coord xex xey))
+    | bex == xex && bey == xey = (xb, Coord (succ xex) (succ xey))
+    | bex == xex = (xb, Coord (succ xex) xey)
+    | bey == xey = (xb, Coord xex (succ xey))
     | otherwise = (xb, xe)
 
 makeCubicleFarm minSize prefSize cs@(Coord xb yb, Coord xe ye)
@@ -315,14 +393,14 @@ Stuff to work on once I get back to working on this:
 )
 -}
 
-data WallConstraint = NoConstraint | AnyWall | OpenSpace | JustGlassWall | JustPlainWall deriving (Data, Typeable, Show, Read, Eq)
-data ActorType = Researcher | OfficeWorker deriving (Data, Typeable, Show, Read, Eq)
-data ActivityType = UseWorkstation | GetStuffOnShelf deriving (Data, Typeable, Show, Read, Eq)
+data WallConstraint = NoConstraint | AnyWall | OpenSpace | JustGlassWall | JustPlainWall deriving (Show, Read, Eq)
+data ActorType = Researcher | OfficeWorker deriving (Show, Read, Eq)
+data ActivityType = UseWorkstation | GetStuffOnShelf deriving (Show, Read, Eq)
 
 data ActivityPoint = ActivityPoint {
       apActivityType :: String
     , apLocationInLayout :: Coord
-} deriving (Data, Typeable, Show, Read, Eq)
+} deriving (Show, Read, Eq)
 
 readFurnitureLayout :: [FurnitureCharacters] -> StoredFurnitureLayout -> Map String FurniturePrototype -> FurnitureLayout
 readFurnitureLayout characters (StoredFurnitureLayout c m w a r) prototypes =
@@ -348,42 +426,12 @@ data StoredFurnitureLayout = StoredFurnitureLayout {
 
     , layoutActivityPoints :: [ActivityPoint]
     , layoutRooms :: [String]
-} deriving (Data, Typeable, Show, Read, Eq)
+} deriving (Show, Read, Eq)
 
-modActivityPointCoord f ap@(ActivityPoint {apLocationInLayout}) = 
-    ap { apLocationInLayout = f apLocationInLayout }
+$(derive [''ActivityPoint, ''StoredFurnitureLayout, ''ActorType, ''WallConstraint, ''ActivityType])
 
-layoutRotations :: FurnitureLayout -> [FurnitureLayout]
-layoutRotations l@(FurnitureLayout {flMap, flWallConstraints, flActivityPoints}) =
-    let rect@(Coord rx ry) = snd $ bounds flMap
-        layoutIsSquare = rx == ry
-    in [let convertCoord = (!!n) . coordRotations (snd $ bounds flMap) in
-        l { flMap = ixmap (bounds flMap) convertCoord flMap
-          , flWallConstraints = convertConstraints flWallConstraints
-          , flActivityPoints = map (modActivityPointCoord convertCoord) flActivityPoints }
-            | n <- [0.. if layoutIsSquare then 7 else 3]
-            | convertConstraints <- [(\(n, e, s, w) -> (n, e, s, w)), -- id
-                                     (\(n, e, s, w) -> (s, w, n, e)), -- rotate180
-                                     (\(n, e, s, w) -> (s, e, n, w)), -- flipvert
-                                     (\(n, e, s, w) -> (n, w, s, e)), -- fliphorz
-                                     (\(n, e, s, w) -> (w, n, e, s)), -- rotate90
-                                     (\(n, e, s, w) -> (e, s, w, n)), -- rotate270
-                                     (\(n, e, s, w) -> (e, n, w, s)), -- flipur
-                                     (\(n, e, s, w) -> (w, s, e, n))]]-- flipul
-
-
-coordRotations r@(Coord rx ry) c = [c, rotate180 c, flipvert c, fliphorz c, rotate90 c, rotate270 c, flipur c, flipul c]
-    where 
-      rotate270 (Coord x y) = Coord (ry - y) x
-      rotate180 (Coord x y) = Coord (rx - x) (ry - y)
-      rotate90 (Coord x y) = Coord y (rx - x)
-      flipvert (Coord x y) = Coord x (ry - y)
-      fliphorz (Coord x y) = Coord (rx - x) y
-      flipur (Coord x y) = Coord y x
-      flipul (Coord x y) = Coord (ry - y) (rx - x)
 
 testLayouts = [StoredFurnitureLayout {layoutCharacters = "office", layoutMap = ["p.cc.","$_...",".....","$_...","`..ss"], layoutWallConstraints = (NoConstraint,NoConstraint,JustPlainWall,JustPlainWall), layoutActivityPoints = [ActivityPoint {apActivityType = "use workstation", apLocationInLayout = Coord {x = 1, y = 1}},ActivityPoint {apActivityType = "use workstation", apLocationInLayout = Coord {x = 1, y = 3}}], layoutRooms = []}]
 
 
 
-type Layouts = [FurnitureLayout]

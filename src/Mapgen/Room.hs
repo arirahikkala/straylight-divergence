@@ -5,7 +5,6 @@ import Data.Accessor
 import Data.Accessor.Template
 
 import Data.Graph.Inductive
-import Data.Graph.Analysis.Algorithms.Common (componentsOf)
 
 import Control.Monad
 import Control.Monad.Trans
@@ -244,7 +243,6 @@ renderWorld g a compounds = do
   prototypes <- liftIO ((read :: String -> [FurniturePrototype]) `fmap` readDataFile "FurniturePrototypes")
   let li = indexLayouts characters layouts $ indexPrototypes prototypes
   liftIO $ writeFile "li" (show li)
---      roomTYpes = 
   (doorsMap, walls) <- renderWalls g
   let floors = renderRooms g
       doors = nub $ concat $ Map.elems doorsMap
@@ -263,6 +261,11 @@ isConnector None = False
 isConnector _ = True
 
 saneLabEdges = map (\(x, y, z) -> ((x, y), z)) . labEdges
+
+-- technically this could convert to a different graph type, I'm fixing the type though because that only confuses matters
+componentsOf :: (Graph gr, DynGraph gr) => gr a b -> [gr a b]
+componentsOf g =
+    map (\nodes -> buildGr $ gsel ((`elem` nodes) . node') g) $ components g
 
 calcCompounds g = 
     componentsOf $ 

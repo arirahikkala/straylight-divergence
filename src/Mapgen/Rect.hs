@@ -103,8 +103,8 @@ connectiveTiles (Coord xB yB, Coord xE yE) =
      [Coord xE y | y <- [yB .. yE - 1]]]
 
 boundsRectSize (Coord xStart yStart, Coord xEnd yEnd)
-    | xEnd < xStart = 0
-    | yEnd < yStart = 0
+    | xEnd <= xStart = 0
+    | yEnd <= yStart = 0
     | otherwise = ((xEnd - xStart) * (yEnd - yStart))
 
 -- all of the inside coords, none of the walls!

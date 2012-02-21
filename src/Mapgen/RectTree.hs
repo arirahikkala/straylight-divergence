@@ -36,7 +36,9 @@ import Mapgen.Rect
 
 import qualified Control.Arrow as Arrow
 
-instance Def RectTreeArgs where
+import Data.Default
+
+instance Default RectTreeArgs where
     def = defaultRectTreeArgs
 
 -- | Generate an irregular mesh of rectangular rooms covering an area of the given size
@@ -79,7 +81,7 @@ data RectTreeArgs = RectTreeArgs {
     , maxSize :: Int
 }
 
-defaultRectTreeArgs = RectTreeArgs 4 14
+defaultRectTreeArgs = RectTreeArgs 8 20
 
 data Axis = X | Y deriving (Show, Eq)
 {-
@@ -116,7 +118,7 @@ campusSplit minSize maxSize sizeNumerator sizeDenominator cs@(Coord xb yb, Coord
        stopHere <- sizeNumerator `probOutOf` (xSize + ySize + sizeDenominator)
        numSections <- pickSectionAmount
        sections <- fitSections axisSize numSections minSize
-       case ((axisSize > maxSize) || stopHere) && ((axisSize `div` numSections) >= minSize) of
+       case ((axisSize > maxSize) || stopHere) && ((axisSize `div` numSections) >= minSize) && axisSize >= minSize of
          True -> return (axis, sections)
          False -> return (X, [])
 
