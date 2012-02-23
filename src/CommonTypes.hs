@@ -40,8 +40,6 @@ import DataUtil (copyArray)
 
 import UI.HSCurses.Curses (Key (..))
 
-import Compound
-
 import Control.Monad.Identity
 import Control.Monad.Random
 
@@ -175,11 +173,34 @@ data Level = Level {
 
 type Time = Int
 
-$(derive [''GameState, ''Flinged, ''Level, ''Facing])
+data IdlingType = UseWorkstation | GetStuffOnShelf deriving (Show, Read, Eq)
+
+data IdlingPoint = IdlingPoint {
+      ipIdlingType_ :: IdlingType
+    , ipLocation_ :: Coord
+} deriving (Show, Read, Eq)
+
+instance TranslateField IdlingPoint where
+    translateField _ = init
+
+newtype CompoundRef = CompoundRef Int deriving (Show, Read, Eq, Ord, Enum)
+
+data Compounds = Compounds {
+      compoundsCoords_ :: Array Coord CompoundRef
+    , compoundsRefs_ :: Map CompoundRef Compound
+} deriving (Show, Read)
+
+data Compound = Compound {
+      compoundRooms_ :: [BoundsRect]
+    , idlingPoints_ :: [IdlingPoint]
+} deriving (Show, Read)
+
+$(derive [''Compounds, ''Compound, ''CompoundRef, ''GameState, ''Flinged, ''Level, ''Facing, ''IdlingType, ''IdlingPoint])
 $( deriveAccessors ''GameState )
 $( deriveAccessors ''GameConfig )
 $( deriveAccessors ''Level )
 $( deriveAccessors ''Flinged )
+$( deriveAccessors ''IdlingPoint )
 
 mGlobal f = do s <- gGlobal
                pGlobal (f s)

@@ -3,6 +3,7 @@ module Compound where
 
 import Data.Array.IArray
 import BasicTypes
+import CommonTypes
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Rect
@@ -15,25 +16,13 @@ import Util (newIArray)
 
 -- almost the same deal with data structures as with objects: one structure for relating locations to compound IDs, another relating compound IDs to compounds
 -- except here most coords are related to a compound (the outside is CompoundRef 0, so sort of a compound in itself) and at most one compound, hence the array
-newtype CompoundRef = CompoundRef Int deriving (Show, Read, Eq, Ord, Enum)
-
-data Compounds = Compounds {
-      compoundsCoords_ :: Array Coord CompoundRef
-    , compoundsRefs_ :: Map CompoundRef Compound
-} deriving (Show, Read)
-
-data Compound = Compound {
-      compoundRooms_ :: [BoundsRect]
-} deriving (Show, Read)
-
-$(derive [''Compounds, ''Compound, ''CompoundRef])
 
 --numberCompounds :: [[BoundsRect]] -> [(CompoundRef, Compound)]
 numberCompounds cs =
-    zip [CompoundRef 1..] $ map Compound cs
+    zip [CompoundRef 1..] cs
 
 
-makeCompounds :: BoundsRect -> [[BoundsRect]] -> Compounds
+makeCompounds :: BoundsRect -> [Compound] -> Compounds
 makeCompounds bs rs = 
     let numbered = numberCompounds $ rs in
     Compounds (newIArray bs (CompoundRef 0) // concat [[(i, ref) | i <- concatMap rectCoords $ compoundRooms_ rect] | (ref, rect) <- numbered])

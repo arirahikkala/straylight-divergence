@@ -1,5 +1,7 @@
 It begins, the todoification!
 
+- move the layoutFrequency parameter to an appropriate higher-level part of the layouting hierarchy
+- propagate errors up from renderWorld in a less game-crashing way
 - put back crash protection stuff in the new simultaneous-turns main loop
 - replace all data file handling stuff with yaml-with-class
  - ... making sure it actually works
@@ -55,3 +57,5 @@ Done:
 * Put in some furniture object types, at least tables and chairs
 * make the AI buddies at least just simply walk around again
 * Game seems to crash when an actor dies, make resolveAction not resolve actions of objects that have been removed
+* handle failures in renderWorld properly (incl. erroring out separately on each file, propagating errors properly)
+* add a layoutFrequency parameter to furniture layouts

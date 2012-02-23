@@ -1,0 +1,72 @@
+- 'StoredFurnitureLayout':
+    'layoutCharacters': 'office'
+    'layoutMap':
+    - 'p.cc '
+    - '$_   '
+    - '.    '
+    - '$_   '
+    - '`  ss'
+    'layoutWallConstraints':
+    - 'AnyWall'
+    - 'NoConstraint'
+    - 'NoConstraint'
+    - 'AnyWall'
+    'layoutIdlingPoints':
+    - 'IdlingPoint':
+        'ipIdlingType': 'UseWorkstation'
+        'ipLocation':
+          'Coord':
+            'x': '1'
+            'y': '1'
+    - 'IdlingPoint':
+        'ipIdlingType': 'UseWorkstation'
+        'ipLocation':
+          'Coord':
+            'x': '1'
+            'y': '3'
+    'layoutRooms':
+    - 'officeGeneric'
+    'layoutFrequency': 100
+- 'StoredFurnitureLayout':
+    'layoutCharacters': 'office'
+    'layoutMap':
+    - 's s'
+    - ' s '
+    - 's s'
+    'layoutWallConstraints':
+    - 'OpenSpace'
+    - 'OpenSpace'
+    - 'OpenSpace'
+    - 'OpenSpace'
+    'layoutIdlingPoints': []
+    'layoutRooms':
+    - 'officeGeneric'
+    'layoutFrequency': 1
+- 'StoredFurnitureLayout':
+    'layoutCharacters': 'office'
+    'layoutMap':
+    - 'c '
+    - 'c '
+    'layoutWallConstraints':
+    - 'NoConstraint'
+    - 'NoConstraint'
+    - 'NoConstraint'
+    - 'JustPlainWall'
+    'layoutIdlingPoints': []
+    'layoutRooms':
+    - 'officeGeneric'
+    'layoutFrequency': 10
+- 'StoredFurnitureLayout':
+    'layoutCharacters': 'office'
+    'layoutMap':
+    - 'ss'
+    - 'sf'
+    'layoutWallConstraints':
+    - 'AnyWall'
+    - 'OpenSpace'
+    - 'OpenSpace'
+    - 'AnyWall'
+    'layoutIdlingPoints': []
+    'layoutRooms':
+    - 'officeGeneric'
+    'layoutFrequency': 1

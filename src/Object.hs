@@ -7,6 +7,7 @@ import Data.Accessor.Template
 import Data.Typeable
 --import Data.Generics.SYB.WithClass
 import Data.Generics.SYB.WithClass.Derive
+import Data.YamlObject (DoShare (..))
 
 import CursesWrap (StyledChar)
 --import Data.Set (Set)
@@ -57,6 +58,9 @@ data FurniturePrototype = FurniturePrototype {
     , furniturePrototypeWalkable :: Bool
     , furniturePrototypeConcealment :: Double
 } deriving (Show, Read, Eq)
+
+instance DoShare FurniturePrototype where
+    doShare = const True
 
 data RubbleMaterial = WoodRubble | BookRubble | StoneRubble
                       deriving (Show, Read, Eq)

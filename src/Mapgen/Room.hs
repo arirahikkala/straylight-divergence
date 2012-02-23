@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, TupleSections, NoMonomorphismRestriction, NamedFieldPuns, FlexibleContexts, DeriveDataTypeable #-}
+{-# LANGUAGE TemplateHaskell, TupleSections, NoMonomorphismRestriction, NamedFieldPuns, FlexibleContexts, DeriveDataTypeable, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances, ExistentialQuantification #-}
 module Mapgen.Room where
 
 import Data.Accessor
@@ -9,12 +9,12 @@ import Data.Graph.Inductive
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Random.Class
-import Control.Arrow ((&&&), (***))
+import Control.Arrow ((&&&), (***), second)
 import qualified Control.Arrow as Arrow (first, second)
 import System.Random
 import Data.List
 import Data.Array.IArray
-import Data.Maybe (mapMaybe)
+import Data.Maybe (mapMaybe, catMaybes)
 import Data.Data
 
 import Data.Map (Map)
@@ -26,15 +26,17 @@ import Mapgen.Furniture
 import Mapgen.FurnitureCharacters
 import Mapgen.CampusArgs
 import BasicTypes
+import CommonTypes
 import Tile
 import Object
 import Util (cfoldr, uniformRandomPick, justUniformRandomPick, matching, gmapDouble)
-import DataFile (readDataFile)
+import SaveLoad (loadDataFromFile)
 
 import Text.Printf (printf)
 import Debug.Trace (trace)
 import Data.VectorSpace
 import Control.Exception (evaluate)
+import Data.Generics.SYB.WithClass.Derive
 
 data Connectivity = None | OneDoor | Corridor Int deriving (Eq, Ord, Show)
 
@@ -182,8 +184,9 @@ data RoomType = RoomType {
     , roomTypeConnections :: (Int, Int)
     , roomTypeSizeRange :: (Int, Int)
     , roomTypeLayoutAlgorithm :: String
-} deriving (Show, Read)
+} deriving (Show, Read, Eq, Ord)
 
+$(derive [''RoomType])
 
 normalizeLayoutRotation :: FurnitureLayout -> FurnitureLayout
 normalizeLayoutRotation l
@@ -192,21 +195,25 @@ normalizeLayoutRotation l
     | otherwise = (!!4) $ layoutRotations l
 
 
-indexLayoutsBySizeInto :: [FurnitureLayout] -> Map Coord [FurnitureLayout] -> Map Coord [FurnitureLayout]
-indexLayoutsBySizeInto =
-    cfoldr (\l -> Map.insertWith (flip (++)) ((Coord 1 1 ^+^) $ snd $ bounds $ flMap l) [l])
+--indexLayoutsByXSizeInto :: [FurnitureLayout] -> Map Int [FurnitureLayout] -> Map Int [FurnitureLayout]
+indexLayoutsByXSizeInto =
+    cfoldr (\l -> Map.insertWith (flip (++)) ((\(Coord ax _, Coord bx _) -> bx - ax + 1) $ bounds $ flMap $ snd l) [l])
 
 
-indexLayouts :: [FurnitureCharacters] -> [StoredFurnitureLayout] -> Map String FurniturePrototype -> Map String (Map Coord Layouts)
+indexLayouts :: [FurnitureCharacters]
+             -> [StoredFurnitureLayout] 
+             -> Map String FurniturePrototype 
+             -> Map String ([(Int, [(Double, FurnitureLayout)])])
 indexLayouts characters layouts prototypes = 
-    foldr (\(k, l) -> 
+    Map.map (Map.toAscList) $ 
+    foldr (\(k, l) ->
                Map.alter (\x -> Just $
                           case x of
-                            Nothing -> Map.singleton ((Coord 1 1 ^+^) $ snd $ bounds $ flMap l) [l]
-                            Just e -> indexLayoutsBySizeInto [l] e)
+                            Nothing -> Map.singleton ((\(Coord ax _, Coord bx _) -> bx - ax + 1) $ bounds $ flMap $ snd l) [l]
+                            Just e -> indexLayoutsByXSizeInto [l] e)
                k)
-    Map.empty $ 
-    concatMap (\sl -> let rl = normalizeLayoutRotation $ readFurnitureLayout characters sl prototypes in
+    Map.empty $
+    concatMap (\sl -> let rl = second normalizeLayoutRotation $ readFurnitureLayout characters sl prototypes in
                       [(k, rl) | k <- layoutRooms sl]) $
     layouts
 
@@ -230,29 +237,40 @@ assignRoomTypes types compound =
     in return $ map (Arrow.second (const "officeGeneric")) $ rooms
 
 renderWorld
-  :: (MonadIO m, Functor m, IArray a Tile, MonadRandom m, Graph gr) =>
+  :: (MonadIO m, Functor m, MonadRandom m, Graph gr) =>
      gr NodeLabel EdgeLabel
-  -> a Coord Tile
+  -> Array Coord Tile
   -> [gr NodeLabel EdgeLabel]
-  -> m ([(Object, Coord)], a Coord Tile)
-
+  -> m ([(Object, Coord)], Array Coord Tile, [[IdlingPoint]])
 renderWorld g a compounds = do
-  layouts <- liftIO ((read :: String -> [StoredFurnitureLayout]) `fmap` readDataFile "FurnitureLayouts")
-  characters <- liftIO ((read :: String -> [FurnitureCharacters]) `fmap` readDataFile "FurnitureCharacters")
-  rooms <- liftIO ((read :: String -> [RoomType]) `fmap` readDataFile "Rooms")
-  prototypes <- liftIO ((read :: String -> [FurniturePrototype]) `fmap` readDataFile "FurniturePrototypes")
-  let li = indexLayouts characters layouts $ indexPrototypes prototypes
-  liftIO $ writeFile "li" (show li)
-  (doorsMap, walls) <- renderWalls g
-  let floors = renderRooms g
-      doors = nub $ concat $ Map.elems doorsMap
-      walledWorld = a // (map (, makeFloor Concrete) (floors ++ doors))  // walls
-  roomTypes <- Map.fromList `fmap` concat `fmap` mapM (assignRoomTypes rooms) compounds
-  let lounges = []
-  lounges <- mapM (\(nr, r) -> 
-                       decorateRoom li (roomTypes Map.! nr) walledWorld (room_ r) (doorsMap Map.! nr)) $ filter (isInside_ . snd) $ labNodes g
-  return (map (door False,) doors ++ concat lounges, walledWorld)
+  mlayouts <- liftIO (loadDataFromFile "FurnitureLayouts.yaml" :: IO (Either String [StoredFurnitureLayout]))
+  mcharacters <- liftIO (loadDataFromFile "FurnitureCharacters.yaml" :: IO (Either String [FurnitureCharacters]))
+  mrooms <- liftIO (loadDataFromFile "Rooms.yaml" :: IO (Either String [RoomType]))
+  mprototypes <- liftIO (loadDataFromFile "FurniturePrototypes.yaml" :: IO (Either String [FurniturePrototype]))
 
+  case (mlayouts, mcharacters, mrooms, mprototypes) of
+    (Right layouts, Right characters, Right rooms, Right prototypes) -> do
+         let layoutsIndexed = undefined -- indexLayouts characters layouts $ indexPrototypes prototypes
+             roomsCompounds :: Map Int Int -- mapping from room number to compound number
+             roomsCompounds = Map.fromList $ concat $ zipWith (\compound num -> map (,num) $ nodes compound) compounds [1..]
+         (doorsMap, walls) <- renderWalls g
+         let floors = renderRooms g
+             doors = nub $ concat $ Map.elems doorsMap
+             walledWorld = a // (map (, makeFloor Concrete) (floors ++ doors))  // walls
+         roomTypes <- Map.fromList `fmap` concat `fmap` mapM (assignRoomTypes rooms) compounds
+         (roomDecor, idlingPoints) <- mapAndUnzipM (\(nr, r) -> 
+                          decorateRoom layoutsIndexed (roomTypes Map.! nr) walledWorld (room_ r) (doorsMap Map.! nr)) $ filter (isInside_ . snd) $ labNodes g
+         let allObjects = map (door False,) doors ++ concat roomDecor
+         return (allObjects, walledWorld, idlingPoints)
+    _ -> fail ("renderWorld: Couldn't parse some YAML data file: " ++
+               (intercalate "\n" $ catMaybes [("in FurnitureLayouts.yaml: " ++) `fmap` show `fmap` getLeft mlayouts, 
+                                              ("in FurnitureCharacters.yaml: " ++) `fmap` show `fmap` getLeft mcharacters, 
+                                              ("in Rooms.yaml: " ++) `fmap` show `fmap` getLeft mrooms, 
+                                              ("in FurniturePrototypes.yaml: " ++) `fmap` show `fmap` getLeft mprototypes]))
+
+getLeft :: Either a b -> Maybe a
+getLeft (Left a) = Just a
+getLeft _ = Nothing
 
 $( deriveAccessors ''EdgeLabel )
 $( deriveAccessors ''NodeLabel )

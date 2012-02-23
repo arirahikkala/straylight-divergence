@@ -108,7 +108,7 @@ addCorridors (CampusArgs {numCorridors}) g = do
 
 makeMap
   :: (Functor m, MonadRandom m, MonadIO m) =>
-     CampusArgs -> (Coord, Coord) -> m (World, [(Object, Coord)], [[BoundsRect]])
+     CampusArgs -> (Coord, Coord) -> m (World, [(Object, Coord)], [Compound])
 makeMap args mapBounds@(boundsMin, boundsMax) = do
 --  layoutCharacters <- liftIO $ justReadJsonFile "LayoutCharacters.json"
 -- roomMap can't deal with non-zero-indexed arrays, but we need space to put the top and left edge walls, so move things about a bit
@@ -126,10 +126,11 @@ makeMap args mapBounds@(boundsMin, boundsMax) = do
   roomGraph4 <- touchUpOutside roomGraph3
   roomGraph5 <- addCorridors args roomGraph4
   roomGraph6 <- connectUp roomGraph5
-  let normalCompounds = calcCompounds roomGraph6
+  let compounds = calcCompounds roomGraph6
   roomGraph7 <- addRandomConnections args roomGraph6
-  (objs, (world3 :: Array Coord Tile)) <- renderWorld roomGraph7 world1 normalCompounds
-  return $ (addEdgeWalls (bounds world3) world3, objs, map (map (room_ . snd) . labNodes) normalCompounds)
+  (objs, (world3 :: Array Coord Tile), idlingPoints) <- renderWorld roomGraph7 world1 compounds
+  let compounds' = zipWith Compound (map (map (room_ . snd) . labNodes) $ compounds) idlingPoints
+  return $ (addEdgeWalls (bounds world3) world3, objs, compounds')
 
 
 
