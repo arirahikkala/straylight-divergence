@@ -1,7 +1,6 @@
-{-# LANGUAGE ForeignFunctionInterface, NoMonomorphismRestriction, ParallelListComp, DeriveDataTypeable, TemplateHaskell, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances  #-}
+{-# LANGUAGE ForeignFunctionInterface, NoMonomorphismRestriction, ParallelListComp, DeriveDataTypeable, TemplateHaskell, FlexibleContexts, FlexibleInstances, DeriveGeneric  #-}
 module CursesWrap where
 
-import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
 import Control.Arrow ((***))
 import qualified UI.HSCurses.Curses as C
@@ -9,7 +8,7 @@ import qualified UI.HSCurses.CursesHelper as CH
 import Foreign.C (CInt, CChar)
 import Foreign.C.String
 import Foreign (Ptr)
-
+import GHC.Generics (Generic)
 import Data.Monoid (Monoid, mappend, mempty)
 
 -- todo: do I use these Update things?
@@ -22,14 +21,14 @@ data UpdateStyle = UpdateStyle {
     , updateBgColor :: ColorName
 }
 
-data ColorName = Black | Red | Green | Yellow | Blue | Purple | Cyan | Grey deriving (Eq, Ord, Enum, Bounded, Show, Read)
+data ColorName = Black | Red | Green | Yellow | Blue | Purple | Cyan | Grey deriving (Eq, Ord, Enum, Bounded, Show, Read, Typeable, Generic)
 
 data Style = Style {
       bright :: Bool
     , brightBg :: Bool
     , fgColor :: ColorName
     , bgColor :: ColorName
-} deriving (Show, Read, Eq)
+} deriving (Show, Read, Eq, Typeable, Generic)
 
 data StyledChar = StyledChar {
       style :: Style
@@ -37,9 +36,8 @@ data StyledChar = StyledChar {
     } | StyleAnimatedChar {
       styles :: [Style]
     , c :: Char
-} deriving (Show, Read, Eq)
+} deriving (Show, Read, Eq, Typeable, Generic)
 
-$(derive [''ColorName, ''Style, ''StyledChar])
 -- wrap the curses functions that I use in order to give me back my nice x, y - ordered arguments rather than the confusing y, x - ordered ones, 
 -- and to bring all the curses stuff in one place so I don't need both Curses and CursesHelper :p
 

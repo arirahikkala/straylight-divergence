@@ -1,8 +1,7 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, TypeFamilies, TemplateHaskell, FlexibleContexts, FlexibleInstances, UndecidableInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, DeriveDataTypeable, TypeFamilies, TemplateHaskell, FlexibleContexts, FlexibleInstances, DeriveGeneric #-}
 module BasicTypes where
 
 import Data.Typeable
-import Data.Generics.SYB.WithClass.Derive
 import Data.Ix (Ix)
 import Data.Set (Set)
 import System.Random (Random, random, randomR)
@@ -10,20 +9,27 @@ import Data.AdditiveGroup
 import Data.VectorSpace
 import Test.QuickCheck
 import Control.Exception
+import GHC.Generics
+import Data.YamlObject (ToYaml, FromYaml)
 
 data Location = OnMap { level :: !LevelRef, coord :: !Coord } | InContainer !ObjRef
-                deriving (Show, Eq, Ord, Read) -- Ord instance used only for storing these in a Map
+                deriving (Show, Eq, Ord, Read, Typeable, Generic) -- Ord instance used only for storing these in a Map
 
 data Coord = Coord { x :: !Int, y :: !Int }
-             deriving (Eq, Ord, Show, Ix, Read)
+             deriving (Eq, Ord, Show, Ix, Read, Typeable, Generic)
 
 newtype ObjRef = ObjRef Int
-    deriving (Show, Eq, Ord, Enum, Read, Ix)
+    deriving (Show, Eq, Ord, Enum, Read, Ix, Typeable, Generic)
 
 newtype LevelRef = LevelRef Int
-    deriving (Show, Eq, Ord, Enum, Read, Ix)
+    deriving (Show, Eq, Ord, Enum, Read, Ix, Typeable, Generic)
 
-$(derive [''Location, ''Coord, ''ObjRef, ''LevelRef])
+instance ToYaml Coord
+instance ToYaml ObjRef
+instance ToYaml LevelRef
+instance FromYaml Coord
+instance FromYaml ObjRef
+instance FromYaml LevelRef
 
 type BoundsRect = (Coord, Coord)
 

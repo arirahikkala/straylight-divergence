@@ -1,5 +1,6 @@
-- 'StoredFurnitureLayout':
-    'layoutCharacters': 'office'
+- 'StoredFurnitureLayout':        
+    'layoutCharacters': 'office'  # furniture character set, defined in FurnitureCharacters.yaml
+    'layoutLocation': 'closed'    # either 'open' or 'closed'; 'closed' layouts get placed "out of the way" while 'open' ones get placed "between" doors (but there is guaranteed to be space between layouts so even an 'open' layout does not need to be walkable through
     'layoutMap':
     - 'p.cc '
     - '$_   '
@@ -29,6 +30,7 @@
     'layoutFrequency': 100
 - 'StoredFurnitureLayout':
     'layoutCharacters': 'office'
+    'layoutLocation': 'open'
     'layoutMap':
     - 's s'
     - ' s '
@@ -44,6 +46,7 @@
     'layoutFrequency': 1
 - 'StoredFurnitureLayout':
     'layoutCharacters': 'office'
+    'layoutLocation': 'closed'
     'layoutMap':
     - 'c '
     - 'c '
@@ -58,6 +61,7 @@
     'layoutFrequency': 10
 - 'StoredFurnitureLayout':
     'layoutCharacters': 'office'
+    'layoutLocation': 'open'
     'layoutMap':
     - 'ss'
     - 'sf'

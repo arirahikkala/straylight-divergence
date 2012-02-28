@@ -7,7 +7,6 @@ import CommonTypes
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Rect
-import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
 
 import Util (newIArray)

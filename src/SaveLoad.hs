@@ -14,8 +14,8 @@ import Text.YamlPickle
 import Data.Array.Unboxed
 --import qualified Data.Text as T
 --import qualified Data.Text.IO as TIO
-import Data.Generics.SYB.WithClass.Basics
 import qualified Data.ByteString as BS
+import Data.YamlObject (makeYaml, unmakeYaml)
 
 saveToFile name content = BS.writeFile name $ encode $ makeYaml content
 

@@ -6,7 +6,6 @@ import CommonTypes
 import Object
 import Data.Data
 import Game
-import Data.Generics.SYB.WithClass.Derive
 import Data.Accessor
 import Control.Monad (liftM, when)
 import Util (whenM)
@@ -20,7 +19,6 @@ data Action =
     | Quit
            deriving (Eq, Show)
 
-$(derive [''Action])
 --resolveAction :: SpecificObject -> Initiative -> Action -> PureGame (Maybe String)
 resolveAction o i a = 
   gsGlobal references_ >>= \refs ->

@@ -14,4 +14,4 @@ Executable divergence
   C-sources: cbits/astar-jps/IndexPriorityQueue.c cbits/astar-jps/AStar.c
   cc-options: -std=c99 -O2
   Ghc-options: -auto-all -rtsopts
-  Build-Depends: base, data-accessor, data-accessor-template, random, mtl, hscurses, containers, array,  MonadRandom, fgl, vector-space, process, PSQueue, QuickCheck, MaybeT, astar, text, yaml-with-class, syb-with-class, bytestring, data-default
+  Build-Depends: base, data-accessor, data-accessor-template, random, mtl, hscurses, containers, array,  MonadRandom, fgl, vector-space, process, PSQueue, QuickCheck, MaybeT, astar, text, yaml-with-class, ghc-prim, bytestring, data-default

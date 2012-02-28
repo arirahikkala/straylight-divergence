@@ -153,8 +153,10 @@ defaultGameConfig =
 
 configureGame :: IO GameConfig
 configureGame = 
-    do prototypes <- liftIO ((read :: String -> [FurniturePrototype]) `fmap` readDataFile "FurniturePrototypes")
-       return $ (defaultGameConfig { furniturePrototypes_ = indexPrototypes prototypes } )
+    do mprototypes <- liftIO (loadDataFromFile "FurniturePrototypes.yaml" :: IO (Either String [FurniturePrototype]))
+       case mprototypes of
+         Right prototypes -> return $ (defaultGameConfig { furniturePrototypes_ = indexPrototypes prototypes } )
+         Left e -> fail ("Couldn't load data file FurniturePrototypes.yaml: " ++ e)
 
 -- todo: Really all Flag constructors should have only a string argument (so that their format can actually be properly checked rather than just being read-ed)
 data Flag = LoadGame String | RandomSeed Int deriving Show

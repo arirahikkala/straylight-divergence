@@ -1,4 +1,4 @@
-{-# LANGUAGE TupleSections, DeriveDataTypeable, NamedFieldPuns, ParallelListComp, TemplateHaskell, FlexibleContexts, NoMonomorphismRestriction, FlexibleInstances, UndecidableInstances, TemplateHaskell, MultiParamTypeClasses #-}
+{-# LANGUAGE TupleSections, DeriveDataTypeable, NamedFieldPuns, ParallelListComp, TemplateHaskell, FlexibleContexts, NoMonomorphismRestriction, FlexibleInstances, DeriveGeneric #-}
 module Mapgen.Furniture where
 
 import Mapgen.FurnitureCharacters
@@ -18,7 +18,8 @@ import AStarFFI (astar)
 import Control.Monad (mapAndUnzipM)
 import Control.Monad.Random
 import Control.Monad.Trans
-import Data.Generics.SYB.WithClass.Derive
+import Data.Typeable (Typeable)
+import GHC.Generics (Generic)
 import Data.AdditiveGroup ((^+^), (^-^))
 import Data.Array.IArray -- todo: Import qualified
 import Data.Array.Unboxed
@@ -38,7 +39,22 @@ import Debug.Trace (trace)
 import Data.Tuple
 import Data.Accessor
 
-data RoomFunction = MeetingRoom deriving (Show, Eq)
+{-
+  OK, so, quickly again:
+  - whoever generates the map chooses a level type
+  - the level type provides parameters to the map generator, and a distribution of compound types
+  - the compound type provides a distribution of room types
+  - the room type provides a distribution of furniture layouts
+
+... but we don't really want to implement the upper levels of that structure yet, so we'll just hardcode in the "Campus" leveltype and its compound types
+-}
+
+data RoomType = RoomType {
+      roomTypeName :: String
+    , roomTypeConnections :: (Int, Int)
+    , roomTypeSizeRange :: (Int, Int)
+    , roomTypeLayoutAlgorithm :: String
+} deriving (Show, Read, Eq, Ord, Typeable, Generic)
 
 rotateListL n xs = drop n xs ++ take n xs
 
@@ -163,7 +179,7 @@ decorateRect layouts a room@(upLeft, downRight) openings =
     do let roomSize = downRight ^-^ upLeft
            allowed = filter (layoutAllowed a room openings . snd)
                      $ concat $ map (\l -> [(fst l, rots) | rots <- nub $ layoutRotations $ snd l])
-                     $ filter ((<= y roomSize) . (\(Coord ax ay, Coord bx by) -> by - ay) . bounds . flMap . snd)
+                     $ filter ((<= y roomSize) . (\(Coord ax ay, Coord bx by) -> by - ay + 1) . bounds . flMap . snd)
                      $ concat $ map snd $ takeWhile ((<= x roomSize) . fst)
                      $ layouts
        liftIO $ appendFile "rects" (show room ++ ", " ++ show (length allowed) ++ "\n")                     
@@ -246,7 +262,7 @@ decorateRoom layouts roomType a room openings =
         allowed = Map.findWithDefault [] roomType layouts
     in do
       openSubs <- (filter ((>0) . boundsRectSize) . map peel)
-                  `fmap` (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 6 5 0) . bulgeToWalls room) open
+                  `fmap` (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 10 10 0) . bulgeToWalls room) open
       closedSubs <- (filter ((>0) . boundsRectSize) . map peel) 
                     `fmap` (map fst . concat) `fmap` mapM (subdivideRectangle (campusSplit 3 10 10 0) . bulgeToWalls room) closed
       liftIO $ appendFile "mapgenlog" ("room: " ++ show room ++ "\nopenings: " ++ show openings ++ "\nopen: " ++ show open ++ "\nopenSubs: " ++ show openSubs ++ "\nclosed: " ++ show closed ++ "\nclosedSubs: " ++ show closedSubs ++ "\n\n\n")
@@ -255,8 +271,8 @@ decorateRoom layouts roomType a room openings =
       (closedObjs, closedPoints) <- mapAndUnzipM (\r -> decorateRect allowed a r openings) closedSubs
       return (concat (openObjs ++ closedObjs),
               concat (openPoints ++ closedPoints))
-{-
 
+{-
       let opens' = concatMap (containedCoords . peel) openSubs
           closeds' = concatMap (containedCoords . peel) closedSubs
           both = opens' `intersect` closeds'
@@ -390,8 +406,8 @@ Stuff to work on once I get back to working on this:
 )
 -}
 
-data WallConstraint = NoConstraint | AnyWall | OpenSpace | JustGlassWall | JustPlainWall deriving (Show, Read, Eq)
-data ActorType = Researcher | OfficeWorker deriving (Show, Read, Eq)
+data WallConstraint = NoConstraint | AnyWall | OpenSpace | JustGlassWall | JustPlainWall deriving (Show, Read, Eq, Typeable, Generic)
+data ActorType = Researcher | OfficeWorker deriving (Show, Read, Eq, Typeable, Generic)
 
 readFurnitureLayout :: [FurnitureCharacters] -> StoredFurnitureLayout -> Map String FurniturePrototype -> (Double, FurnitureLayout)
 readFurnitureLayout characters (StoredFurnitureLayout c m w a r f) prototypes =
@@ -418,11 +434,4 @@ data StoredFurnitureLayout = StoredFurnitureLayout {
     , layoutIdlingPoints :: [IdlingPoint]
     , layoutRooms :: [String]
     , layoutFrequency :: Double
-} deriving (Show, Read, Eq)
-
-$(derive [''StoredFurnitureLayout, ''ActorType, ''WallConstraint])
-
-
-
-
-
+} deriving (Show, Read, Eq, Typeable, Generic)

@@ -36,7 +36,7 @@ import Text.Printf (printf)
 import Debug.Trace (trace)
 import Data.VectorSpace
 import Control.Exception (evaluate)
-import Data.Generics.SYB.WithClass.Derive
+import Data.YamlObject (FromYaml, ToYaml)
 
 data Connectivity = None | OneDoor | Corridor Int deriving (Eq, Ord, Show)
 
@@ -169,24 +169,6 @@ renderRooms =
 type CompoundType = String
 type LevelType = String
 
-{-
-  OK, so, quickly again:
-  - whoever generates the map chooses a level type
-  - the level type provides parameters to the map generator, and a distribution of compound types
-  - the compound type provides a distribution of room types
-  - the room type provides a distribution of furniture layouts
-
-... but we don't really want to implement the upper levels of that structure yet, so we'll just hardcode in the "Campus" leveltype and its compound types
--}
-
-data RoomType = RoomType {
-      roomTypeName :: String
-    , roomTypeConnections :: (Int, Int)
-    , roomTypeSizeRange :: (Int, Int)
-    , roomTypeLayoutAlgorithm :: String
-} deriving (Show, Read, Eq, Ord)
-
-$(derive [''RoomType])
 
 normalizeLayoutRotation :: FurnitureLayout -> FurnitureLayout
 normalizeLayoutRotation l
@@ -236,6 +218,18 @@ assignRoomTypes types compound =
     let rooms = map (Arrow.second room_) $ labNodes compound
     in return $ map (Arrow.second (const "officeGeneric")) $ rooms
 
+instance FromYaml CharacterDefinition
+instance FromYaml WallConstraint
+instance FromYaml RoomType
+instance FromYaml FurnitureCharacters
+instance FromYaml StoredFurnitureLayout
+
+instance ToYaml CharacterDefinition
+instance ToYaml WallConstraint
+instance ToYaml RoomType
+instance ToYaml FurnitureCharacters
+instance ToYaml StoredFurnitureLayout
+
 renderWorld
   :: (MonadIO m, Functor m, MonadRandom m, Graph gr) =>
      gr NodeLabel EdgeLabel
@@ -250,7 +244,7 @@ renderWorld g a compounds = do
 
   case (mlayouts, mcharacters, mrooms, mprototypes) of
     (Right layouts, Right characters, Right rooms, Right prototypes) -> do
-         let layoutsIndexed = undefined -- indexLayouts characters layouts $ indexPrototypes prototypes
+         let layoutsIndexed = indexLayouts characters layouts $ indexPrototypes prototypes
              roomsCompounds :: Map Int Int -- mapping from room number to compound number
              roomsCompounds = Map.fromList $ concat $ zipWith (\compound num -> map (,num) $ nodes compound) compounds [1..]
          (doorsMap, walls) <- renderWalls g

@@ -1,17 +1,16 @@
-{-# LANGUAGE TemplateHaskell, NamedFieldPuns, NoMonomorphismRestriction, BangPatterns, ViewPatterns, DeriveDataTypeable, FlexibleInstances, MultiParamTypeClasses, FlexibleContexts, UndecidableInstances #-}
+{-# LANGUAGE TemplateHaskell, NamedFieldPuns, NoMonomorphismRestriction, BangPatterns, ViewPatterns, DeriveDataTypeable, FlexibleInstances, FlexibleContexts, DeriveGeneric, OverlappingInstances #-}
 module Object where
 
 import BasicTypes
 
 import Data.Accessor.Template
 import Data.Typeable
---import Data.Generics.SYB.WithClass
-import Data.Generics.SYB.WithClass.Derive
-import Data.YamlObject (DoShare (..))
+import Data.YamlObject (Share (..))
 
 import CursesWrap (StyledChar)
 --import Data.Set (Set)
 import qualified Data.Set as Set (empty)
+import GHC.Generics (Generic)
 
 data SpecificObject = SpecificObject { ref :: !ObjRef, obj :: Object }
 
@@ -43,12 +42,12 @@ data Object =
     DebugChar {
       char_ :: ! Char
     }
-    deriving (Show, Eq)
+    deriving (Show, Eq, Typeable, Generic)
 
 data RangedWeaponPrototype = RangedWeaponPrototype {
       rangedWeaponName :: String
     , rangedWeaponDamage :: Int
-} deriving (Show, Eq)
+} deriving (Show, Eq, Typeable, Generic)
 
 data FurniturePrototype = FurniturePrototype {
       furniturePrototypeName :: String 
@@ -57,13 +56,13 @@ data FurniturePrototype = FurniturePrototype {
     , furniturePrototypeWeight :: Double
     , furniturePrototypeWalkable :: Bool
     , furniturePrototypeConcealment :: Double
-} deriving (Show, Read, Eq)
+} deriving (Show, Read, Eq, Typeable, Generic)
 
-instance DoShare FurniturePrototype where
-    doShare = const True
+instance Share FurniturePrototype where
+    share = const False
 
 data RubbleMaterial = WoodRubble | BookRubble | StoneRubble
-                      deriving (Show, Read, Eq)
+                      deriving (Show, Read, Eq, Typeable, Generic)
 
 name (SpecificObject { obj = o }) = return $
     case o of
@@ -85,9 +84,8 @@ buddy = Actor (AIState []) 10 [] 1
 
 data AIState = AIState {
       movementPlan_ :: [Coord]
-} deriving (Show, Read, Eq)
+} deriving (Show, Read, Eq, Typeable, Generic)
 
-$(derive [''Object, ''FurniturePrototype, ''RangedWeaponPrototype, ''RubbleMaterial, ''AIState])
 
 $( deriveAccessors ''Object )
 $( deriveAccessors ''AIState )

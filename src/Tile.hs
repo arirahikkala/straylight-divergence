@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses, UndecidableInstances, TemplateHaskell #-}
+{-# LANGUAGE DeriveDataTypeable, FlexibleContexts, FlexibleInstances, DeriveGeneric #-}
 module Tile where
 {-module Tile (Tile (), Floor (..), Wall (..), 
              makeWall, makeFloor, emptySpace, 
@@ -7,19 +7,17 @@ module Tile where
 -}
 import Data.Bits
 import CursesWrap (ColorName (..), StyledChar (..), Style (..))
-import Data.Generics.SYB.WithClass.Derive
+import GHC.Generics (Generic)
 import Data.Typeable
 
 -- bit allocation for now: last 4 bits for Floor, last 4 bits before them for Wall
 -- I'm assuming Liberally that the Int type will have enough bits for my needs so I don't have to bother with casting :>
 -- (in fact this file is pretty lazily written in general...)
-newtype Tile = Tile {unTile :: Int} deriving (Show, Read)
-
-$(derive [''Tile])
+newtype Tile = Tile {unTile :: Int} deriving (Show, Read, Typeable, Generic)
 
 data Floor = NoFloor | Concrete | Asphalt | Grass | Sett | Floor | Carpeting | Sand | Water deriving (Show, Eq, Enum)
 
-data Wall = NoWall | PlainWall | GlassWall deriving (Eq, Enum, Show)
+data Wall = NoWall | PlainWall | GlassWall deriving (Eq, Enum, Show, Typeable, Generic)
 
 tileWallType :: Tile -> Wall
 tileWallType (Tile t) = toEnum $ shiftR t 4

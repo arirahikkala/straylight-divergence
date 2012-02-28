@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, TemplateHaskell, DisambiguateRecordFields, NamedFieldPuns, StandaloneDeriving, FlexibleContexts, UndecidableInstances, NoMonomorphismRestriction, FlexibleInstances, BangPatterns, DeriveDataTypeable, MultiParamTypeClasses, TypeSynonymInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, DisambiguateRecordFields, NamedFieldPuns, StandaloneDeriving, FlexibleContexts, NoMonomorphismRestriction, FlexibleInstances, BangPatterns, MultiParamTypeClasses, TypeSynonymInstances, DeriveGeneric, TemplateHaskell, DeriveDataTypeable, OverlappingInstances #-}
 module CommonTypes where
 import Object
 import BasicTypes
@@ -30,20 +30,20 @@ import Control.Monad.Random.Class (getRandom, getRandoms, getRandomR, getRandomR
 import Control.Monad.Trans (lift, MonadIO)
 
 import Control.Arrow (first)
-import Data.Generics.SYB.WithClass.Derive
 import Data.Typeable
-import Data.YamlObject (FromYaml, FromYamlM, fromYaml)
-
+import Data.YamlObject (ToYaml, FromYaml, FromYamlM, fromYaml, TranslateField (..))
+import qualified Data.Text as Text
 import Tile
 
 import DataUtil (copyArray)
 
 import UI.HSCurses.Curses (Key (..))
-
+import CursesWrap (StyledChar, Style, ColorName)
 import Control.Monad.Identity
 import Control.Monad.Random
 
-import Data.YamlObject (TranslateField(..))
+
+import GHC.Generics (Generic)
 
 data Facing = N | NE | E | SE | S | SW | W | NW
                  deriving (Eq, Ord, Show, Read, Enum, Bounded)
@@ -146,14 +146,15 @@ data GameState = GameState {
     , turnDone_ :: Bool
     -- trivial
     , doQuit_ :: Bool
-} deriving (Show)
+} deriving (Show, Typeable, Generic)
+
 
 data Flinged = Flinged {
       flingedObject_ :: ObjRef
     , flingedPath_ :: [Coord]
     -- flingedProgress_ == maxBound is currently special, meaning the fling is "done"
     , flingedProgress_ :: Int
-} deriving (Show)
+} deriving (Show, Typeable, Generic)
 
 data Level = Level {
     -- currently never mutated
@@ -169,33 +170,32 @@ data Level = Level {
     , playerRemembered_ :: !Remembered
     -- emptied regularly
     , flinged_ :: [Flinged] -- todo: this and possibly some other ones are really more generally interface-related data and should be made ephemeral
-} deriving (Show)
+} deriving (Show, Typeable, Generic)
 
 type Time = Int
 
-data IdlingType = UseWorkstation | GetStuffOnShelf deriving (Show, Read, Eq)
+data IdlingType = UseWorkstation | GetStuffOnShelf deriving (Show, Read, Eq, Typeable, Generic)
 
 data IdlingPoint = IdlingPoint {
       ipIdlingType_ :: IdlingType
     , ipLocation_ :: Coord
-} deriving (Show, Read, Eq)
+} deriving (Show, Read, Eq, Typeable, Generic)
 
 instance TranslateField IdlingPoint where
-    translateField _ = init
+    translateField _ = Text.init
 
-newtype CompoundRef = CompoundRef Int deriving (Show, Read, Eq, Ord, Enum)
+newtype CompoundRef = CompoundRef Int deriving (Show, Read, Eq, Ord, Enum, Typeable, Generic)
 
 data Compounds = Compounds {
       compoundsCoords_ :: Array Coord CompoundRef
     , compoundsRefs_ :: Map CompoundRef Compound
-} deriving (Show, Read)
+} deriving (Show, Read, Typeable, Generic)
 
 data Compound = Compound {
       compoundRooms_ :: [BoundsRect]
     , idlingPoints_ :: [IdlingPoint]
-} deriving (Show, Read)
+} deriving (Show, Read, Typeable, Generic)
 
-$(derive [''Compounds, ''Compound, ''CompoundRef, ''GameState, ''Flinged, ''Level, ''Facing, ''IdlingType, ''IdlingPoint])
 $( deriveAccessors ''GameState )
 $( deriveAccessors ''GameConfig )
 $( deriveAccessors ''Level )
@@ -222,3 +222,46 @@ instance Random Facing where
     random = (\(a, g) -> (toEnum a, g)) . randomR (fromEnum (minBound :: Facing), fromEnum (maxBound :: Facing))
     randomR (s, e) g = (\(a, g) -> (toEnum a, g)) $ randomR (fromEnum s, fromEnum e) g
 
+
+
+instance FromYaml GameState
+instance FromYaml Level
+instance FromYaml Object
+instance FromYaml Tile
+instance FromYaml Compounds
+instance FromYaml Flinged
+instance FromYaml AIState
+instance FromYaml RangedWeaponPrototype
+instance FromYaml FurniturePrototype
+instance FromYaml RubbleMaterial
+instance FromYaml Location
+instance FromYaml StyledChar
+instance FromYaml Style
+instance FromYaml ColorName
+instance FromYaml CompoundRef
+instance FromYaml Compound
+instance FromYaml IdlingPoint
+instance FromYaml IdlingType
+
+instance ToYaml GameState
+instance ToYaml Level
+instance ToYaml Object
+instance ToYaml Tile
+instance ToYaml Compounds
+instance ToYaml Flinged
+instance ToYaml AIState
+instance ToYaml RangedWeaponPrototype
+instance ToYaml FurniturePrototype
+instance ToYaml RubbleMaterial
+instance ToYaml Location
+instance ToYaml StyledChar
+instance ToYaml Style
+instance ToYaml ColorName
+instance ToYaml CompoundRef
+instance ToYaml Compound
+instance ToYaml IdlingPoint
+instance ToYaml IdlingType
+
+instance (Show ml, Show mr, Typeable ml, Typeable mr, Ord ml, Ord mr, ToYaml ml, ToYaml mr) => ToYaml (LocationMap ml mr)
+
+instance (Read ml, Read mr, Typeable ml, Typeable mr, Ord ml, Ord mr, FromYaml ml, FromYaml mr) => FromYaml (LocationMap ml mr)
